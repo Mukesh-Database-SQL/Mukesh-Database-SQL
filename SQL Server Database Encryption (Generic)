@@ -1,0 +1,256 @@
+Prerequisites
+The following are prerequisites for the successful completion of this procedure:
+
+Approved change within Remedy on Demand (RoD) with appropriate notes attached to the change.
+
+Actions
+You need to Create CSR from the desire server only for which you are creating a CSR file
+
+Create CSR using below command(generic), and provide the CSR file to security operations.
+
+
+
+;----------------- request.inf -----------------
+[version] 
+signature="$windows nt$"
+[newrequest] 
+;change to your,country code, company name and common name 
+subject = "c=au, s=queensland, l=brisbane,  o=brisbane city council, ou=organisational services,  cn=<fqdn>.ad.bcc.qld.gov.au, e=os-is-sd-hcl-sql@brisbane.qld.gov.au"
+friendlyname = <fqdn/cluster group name>.ad.bcc.qld.gov.au
+keyspec = 1 
+keylength = 2048 
+exportable = true 
+machinekeyset = true 
+smime = false
+privatekeyarchive = false
+userprotected = false
+useexistingkeyset = false
+providername = "microsoft rsa schannel cryptographic provider" 
+providertype = 12 
+requesttype = pkcs10 
+keyusage = 0xa0
+[enhancedkeyusageextension] 
+oid=1.3.6.1.5.5.7.3.1 ; this is for server authentication / token signing 
+[Extensions]
+2.5.29.17 = "{text}"
+;------------Enter the common Name CN and any additional Subject alternative Names (SAN)----------
+_continue_ = "dns = <fqdn/cluster group name>.bcc.qld.gov.au,<fqdn/cluster group name>.ad.bcc.qld.gov.au&"
+;-----------------------------------------------
+For example
+;----------------- request.inf -----------------
+[version] 
+signature="$windows nt$"
+[newrequest] 
+;change to your,country code, company name and common name 
+subject = "c=au, s=queensland, l=brisbane,  o=brisbane city council, ou=organisational services,  cn=m847cluat2.ad.bcc.qld.gov.au, e=os-is-sd-hcl-sql@brisbane.qld.gov.au"
+friendlyname = m847cluat2.ad.bcc.qld.gov.au
+keyspec = 1 
+keylength = 2048 
+exportable = true 
+machinekeyset = true 
+smime = false
+privatekeyarchive = false
+userprotected = false
+useexistingkeyset = false
+providername = "microsoft rsa schannel cryptographic provider" 
+providertype = 12 
+requesttype = pkcs10 
+keyusage = 0xa0
+[enhancedkeyusageextension] 
+oid=1.3.6.1.5.5.7.3.1 ; this is for server authentication / token signing 
+[Extensions]
+2.5.29.17 = "{text}"
+;------------Enter the common Name CN and any additional Subject alternative Names (SAN)----------
+_continue_ = "DNS = m847cluat2.bcc.qld.gov.au&"
+_continue_ = "DNS = m847cluat2.ad.bcc.qld.gov.au&"
+_continue_ = "DNS = m847cluat2&"
+_continue_ = "DNS = se847ssdsuao02&"     
+_continue_ = "DNS = se847ssdsuao02.ad.bcc.qld.gov.au&"
+_continue_ = "DNS = se847ssdsuao02.bcc.qld.gov.au&"
+------------------------------------
+Open dos and create csr file
+
+
+
+certreq -new <cert_pat.inf> <cert_path\server.ad.bcc.qld.gov.au.csr>
+ 
+
+NOTE: Please make sure to have alternate name as below:
+
+for stand alone server
+
+
+
+<servername>.ad.bcc.qld.gov.au
+<servername>.bcc.qld.gov.au
+<servername>
+For Always on
+
+
+
+<servername>.ad.bcc.qld.gov.au
+<servername>.bcc.qld.gov.au
+<servername>
+<ListnerNode>.ad.bcc.qld.gov.au
+<ListnerNode>.bcc.qld.gov.au
+<ListnerNode>
+Please make sure All the nodes are covered.
+After successful Execution of the above command a CSR file will be created on the desire location.
+
+Open a Service request to security operations and attach the CSR file in the SR.
+
+Mention ALL the Always On Listener Name in the service request with the comment "Please create the following Alias".
+
+Network Team will send a CA signed Certificate through email.
+
+Download the certificate from email and copy it to the centralize location.
+
+Copy the certificate to the desire server and install the certificate.
+
+Install a certificate on a server with Microsoft Management Console (MMC)
+
+To use SSL encryption, you must install a certificate on the server. Follow these steps to install the certificate by using the Microsoft Management Console (MMC) snap-in.
+
+How to Configure the MMC Snap-in
+
+To open the Certificates snap-in, follow these steps:
+
+To open the MMC console, click Start, and then click Run. In the Run dialog box type: MMC
+
+On the Console menu, Click on File then click Add/Remove Snap-in or Ctrl+M ....
+
+Select Certificate from Available snap-ins then Click Add, and then click Certificates. Click Add again.
+
+You are prompted to open the snap-in for the current user account, the service account, or for the computer account. Select the Computer Account and click on Next
+
+Select Local computer, and then click Finish.
+
+Click OK in the Add/Remove Snap-in dialog box. Your installed certificates are located in the Certificates folder in the Personal container.
+
+Use the MMC snap-in to install the certificate on the server:
+
+Click to select the Personal folder in the left-hand pane.
+
+Right-click in the right-hand pane, point to All Tasks, and then click import and click next
+
+Browse the certificate provided by Network team.
+
+Click Next, check for all the certificates to be placed in personal folder.
+
+Click next and Finish.
+
+For SQL Server 2005 and later versions, to enable encryption at the server, open the SQL Server Configuration Manager and do the following:
+
+In SQL Server Configuration Manager, expand SQL Server Network Configuration, right-click Protocols for <server instance>, and then select Properties.
+
+On the Certificate tab, select the desired certificate from the Certificate drop-down menu, and then click OK.
+
+On the Flags tab, select Yes in the Force Encryption box, and then click OK to close the dialog box.
+
+Restart the SQL Server service.
+
+Enable a certificate for SSL on a SQL Server clustered installation
+
+The certificate used by SQL Server to encrypt connections is specified in the following registry key:
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL.x\MSSQLServer\SuperSocketNetLib\Certificate
+
+This key contains a property of the certificate known as thumbprint that identifies each certificate in the server. In a clustered environment, this key will be set to Null even though the correct certificate exists in the store. To resolve this issue, you must take these additional steps on each of your cluster nodes after you installed the certificate to each node):
+
+Navigate to the certificate store where the FQDN certificate is stored. On the properties page for the certificate, go to the Details tab and copy the thumbprint value of the certificate to a Notepad window.
+
+Remove the spaces between the hex characters in the thumbprint value in Notepad.
+
+Start regedit, navigate to the following registry key, and copy the value from step 2:
+
+HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\<instance>\MSSQLServer\SuperSocketNetLib\Certificate
+
+If the SQL virtual server is currently on this node, failover to another node in your cluster, and then reboot the node where the registry change occurred.
+
+Repeat this procedure on all the nodes.
+
+Note:For screenshots of this procedure, see the following blog post on MSDN:
+
+http://blogs.msdn.com/b/jorgepc/archive/2008/02/19/enabling-certificates-for-ssl-connection-on-sql-server-2005-clustered-installation.aspx
+
+Enable encryption for a specific client
+
+For the client to request the SSL encryption, the client computer must trust the server certificate and the certificate must already exist on the server. You have to use the MMC snap-in to export the Trusted Root Certification Authority used by the server certificate:
+
+To export the server certificate's Trusted Root Certificate Authority (CA), follow these steps:
+
+Open MMC, and then locate your certificate in the Personal folder.
+
+Right-click the certificate name, and then click Open.
+
+Review the Certification Path tab. Note the top most item.
+
+Navigate to the Trusted Root Certification Authorities folder, and then locate the Certificate Authority noted in step c..
+
+Right-click CA, point to All Tasks, and then click Export.
+
+Select all the defaults, and then save the exported file to your disk where the client computer can access the file.
+
+Follow these steps to import the certificate on the client computer:
+
+Navigate to the client computer by using the MMC snap-in, and then browse to the Trusted Root Certification Authorities folder.
+
+Right-click the Trusted Root Certification Authorities folder, point to All Tasks, and then click Import.
+
+Browse, and then select the certificate (.cer file) that you generated in step 1. Select the defaults to complete the remaining part of the wizard.
+
+Use the SQL Server Client Network Utility.
+
+Click to select the Force Protocol encryption option. Your client is now ready to use SSL encryption.
+
+Configure SSL on configuration manager
+
+Go to Configuration Manager.
+
+Go to Network protocol, select the instance on which SSL needs to be implemented.
+
+Right click on the instance, enable force encryption to be yes.
+
+Go To certificate, from drop down select the certificate to be implemented.
+
+Restart SQL services.
+
+Go to command prompt, unbind the old certificate using command
+
+
+
+netsh http delete sslcert ipport=[::]:443
+Confirmation
+To test your client connection you can either:
+
+Use SQL Management Studio.
+
+Use any ODBC or OLEDB application in which you can change the connection string.
+
+SQL Server Management Studio
+
+Use Command Prompt
+
+To test with SQL Server Management Studio, follow these steps:
+
+Navigate to the SQL Server Client <version> Configuration page in SQL Server Configuration Manager.
+
+In the properties windows, set the Force protocol encryption option to "Yes."
+
+Connect to the server that is running SQL Server by using SQL Server Management Studio.
+
+Script the encryption connection
+
+
+
+select encrypt_option,* from sys.dm_exec_connections
+Monitor the communication by using Microsoft Network Monitor or a network sniffer.
+
+To test using command Prompt
+
+Execute the below command to check certificate binded
+
+
+
+netsh http show sslcert
+Note:If you use ODBC or OLEDB connection strings from a provider like SQL Native Client, add the Encrypt keyword and set it to true in your connection string, and then monitor the communication using a tool like Microsoft Network Monitor or a network sniffer.
