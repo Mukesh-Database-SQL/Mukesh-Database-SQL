@@ -1,0 +1,31 @@
+Prerequisites
+The following are prerequisites for the successful completion of this procedure:
+
+Outlook client is installed.
+
+Permissions to the DDDATABASE mailbox have been granted.
+
+Actions
+Navigate to the Control Panel on the workstation.
+
+Access the Mail control panel applet.
+
+Click on Show Profiles
+
+Make sure "Prompt for a profile..." is selected
+
+Click on Add
+
+Type "DDDATABASE" as the name of the profile and click OK
+
+Select Manually configure..." and click Next
+
+Select "Microsoft Exchange..." and click Next
+
+Enter "exchange.brisbane.qld.gov.au" as the Server and dddatabase@brisbane.qld.gov.au as the User Name and click Check Name
+
+Click Next
+
+Click Finish
+
+To access the DDDATABASE mailbox restart Outlook and when prompted for the profile to use select DDDATABASE
