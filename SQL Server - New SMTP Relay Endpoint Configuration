@@ -1,0 +1,31 @@
+Actions
+
+Connect to SSMS and open Mail configuration Wizard.
+
+
+
+Select Manage database Mail account and profile and then click on Next.
+
+
+
+Select view, change or delete an existing account and click on next.
+
+
+
+Update the SMTP server name and port number, then select the checkbox “Requires a Secure SSL connection.” 
+update new server name (new smtp) and port number 25
+
+
+
+
+Now click on Finish to complete this configuration wizard. 
+
+
+
+Now send Test email using your email address. 
+
+
+
+
+
+For more information about the SMTP Relay Platform, please click the link below
