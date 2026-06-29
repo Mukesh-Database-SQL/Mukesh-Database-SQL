@@ -1,0 +1,48 @@
+SQL Server INF-->
+--------------------------------
+INF003 - Database SQL Instance Server Infrastructure Build
+INF004 - Database SQL Server Database Build
+INF026 - SQL Server Instance Decommission
+INF027 - SQL Server Database Decommission
+INF049 - Virtual SQL Server Rename and or Relocation on ESX Hosts
+INF059 -Database - SQL Server Database Backup Maintenance
+INF060 -Database - SQL Server Privileged Account Maintenance
+INF061 -Database - SQL Server Privileged Application Account Maintenance
+INF067 - Database - Extract SQL Server Database Data
+INF072 - Database - Refresh SQL Server Database
+
+---------------------------------------------------------------------------------------
+DB boster used for taking backup of all database
+
+SQL Server Environment------->>>
+1. Dev
+2. UAT
+3. Prod
+
+--How many servers are in---
+1. Dev: -  12 server, M(601, 608, 637, 641, 642, 676, 677, 716, 731, 800, 933)DEV1
+2. UAT: -  18 server, M(601, 637, 638, 641, 642, 650, 653ClUAT1/2, 669, 676, 717ClUAT1/2, 730, 734, 790, 830, 841)UAT1, UATldmsdb01.database.windows.net
+3. Prod: - 28 server, M(601, 609Clprd1/2, 637, 638, 641, 642, 650, 653Clprd1/2, 669, 673Clprd1/2, 676, 677, 717Clprd1/2, 730, 731, 734, 790, 830, 903, 905Clprd1/2, 933Clprd1/2), prdldmsdb01.database.windows.net
+
+---------------------------------------------------------------
+Application-->>>> Critical --->>>
+(A). Inforamtion Steward --> M601DEV1, M601PRD1, M601UAT1, 
+(B). Microsoft Identity Manager --> M716Dev1, M717ClPrd1/2, M717ClUAT1/2
+(C). SCOM --> M650Prd1, M650UAT1, M653ClPrd1/2, M653ClUAT1/2
+(D). SolarWind --> M905ClPrd1/2
+(E). SCCM --> M730Prd1, M730UAT1
+----------------------------------------------------------------------------------------------
+
+===>> Refresh Database
+Approval required for refresh database (pre approva)
+-approval change within ITSM7 with appropriate notes attached to change
+-check with RIMs support To confirm Down Time
+-Confirm with base before deployment
+-refresh to CRQ-No.
+
+-----------------------------------------------------------------------------------------
+1. Disable Trigger (source table)
+2. export from Source table & import To Destination table
+3. Enable Trigger again
+4. Check db_link under cldbprod database
+5. Confirmation--Check with application team, make sure it's working

@@ -1,16 +1,10 @@
-Total 8 document are required for Check Server Health and create a Health Check Report
+---Total 8 document are required for Check Server Health and create a Health Check Report
 
-1. xp_fixed drive (select @@version)
+--1. xp_fixed drive (select @@version)
+
 Xp_Fixeddrives
------------------------------------------
-2. Available size of logical disk (sp_helpfiles)
-3. Backup status (command run)
-4. Server status (command)
-5. Avalability Group Status
-6. TDE Status
-8. infosteward status
-----------------------------------------------------------------
-2. Backup 
+
+--2. Backup 
 
 select serverproperty ('servername'),a.name, case b.type
        when 'D' then 'Full Database Backup'  
@@ -23,8 +17,8 @@ from master..sysdatabases a
 LEFT OUTER JOIN msdb..backupset b ON a.name = b.database_name
 where a.name not in ('master','msdb','model','tempdb','DBA_Maintenance') group by a.name, b.type
 order by a.name, b.type
--------------------------------------------------------------------------------------------------------------------
-3. Service status
+
+---3. Service status
 
 set nocount on
 CREATE TABLE #ServicesStatus
@@ -46,12 +40,12 @@ select @@servername,serviceName, Status, checkdatetime from #ServicesStatus
 --select char(13)
 drop table #ServicesStatus
 
----------------------------------------------------------------------------------------------------------------
-4. Database Mail
+
+---4. Database Mail
 
 Exec msdb.dbo.sysmail_help_status_sp
------------------------------------------------------------
-5. Always on DB Service
+
+---5. Always on DB Service
 
 SELECT 
 dbname.name,
@@ -71,8 +65,7 @@ and ag.group_id=gp.group_id
 AND db.database_id=dbname.dbid
 AND db.database_state_desc IS NOT NULL
 
----------------------------------------------------------------------------
-6.  Database Status
+---6.  Database Status
 
 use master
 go   
@@ -83,8 +76,9 @@ when 1 then 'ON'
 when 0 then 'OFF'
 end as [Auto Close]
 from sys.databases
--------------------------------------------------------------------------------
-7. DB TDE encryption
+
+
+---7. DB TDE encryption
 
 SELECT @@SERVERNAME ,DB_NAME(database_id)
   ,encryption_state = CASE 
@@ -105,20 +99,14 @@ SELECT @@SERVERNAME ,DB_NAME(database_id)
     END
   ,create_date
   ,encryptor_type
-FROM sys.dm_database_encryption_keys
-------------------------------------------------------------------------------
+FROM sys.dm_database_encryption_keys 
 
- Email Subject: Health Check Report_SQL_mmddyyyy
 
-Email Note:
 
-Hi Team,
 
-Please find the enclosed SQL Health Report. Everything is working as expected.
 
-<Mention any problem occurred during health check if any>
 
-Please direct your response back to this email to OS-IS-SD-HCL-SQL for any queries.
 
-Regards
- 
+
+
+

@@ -1,0 +1,62 @@
+Training-->
+
+1. What is sql server
+2. Why we are using RDBMS
+3. SQL server  Architecture
+4. Type of database
+	* RDMBS:- Relationship database management
+		@ One to many
+		@ Many to one
+		@ Many to many 
+	* Hirearchical database(HDBMS):- Data arranged in a tree structure 
+	* FDMS:- File structure 1950, not security, not maintain data
+	* Network Database managemnet:- Child node can have more than one parent node
+	Distributed database
+	Cloud db
+	Object oriented db
+	No-Sql:- wide variety of data model for accesssing managing data. schema (logical create boundary)
+5. Command for SQL server
+	#DDL(data definition language):- Create, Alter, Drop, Truncate, Rename (sp_rename 'schema.db_name', 'new_name', 'column')
+	#DML(data manipulated language):- Insert, Update ({Update [db_name] set [column_name] = [input data];}), Delete
+	#TCL(Transaction control language):- Commit, Rollback (always used being transaction)
+	#DCL(data control language):- Grant, Revoke
+	#DQL(data query language):- Select
+6. Table
+	$ 2D (row, column,)
+	$ Schema, privilage, Create new table, copy of table, table name must be unique, table type(regular, index, organisaed tbale, etc)
+	$ Structure and Data type
+	$ Data type null, length, constrant
+		{Use [db_name]
+			create table [table_name](data type, variable), primary key, (constraint pk_tableName primary key ()}
+
+7. Constraint:- pre definded rule and restrictions that are enforced at table level or column level
+There are Five types:-
+* Default
+* Unique
+* Check
+* Primary Key
+* Foreign Key ( contraint pk_TableName primary key () OR
+		Primary key ()	OR	Alter table table_name add primary key()   OR	Alter table tabe_name Drop primary key; 	
+
+8. View:-  Virtual table create one or more table, (store complex calculation, View not hold any data, set of predefined select query)
+	* Simple View - select*from table_name
+	* Complex View - Select query with Distinct Clause, Function, Subqueryies, Calculation (can not manipulate)
+	
+	{ Select distinct coloum_name From table_name ---> It's remove dublicate value and show only unique}
+	{Function:-  *Avg, *Count, *len, *Trim(Ltrim, Rtrim), *Replace, *Unicode, }--> Set of sql statement that perform specific task.
+
+9. Index:- Its a pointer in table, helps speed up query, 
+Two types
+*Cluster (Unique Index) 
+*Non-Cluster (Non-unique Index)
+
+10. Trigger:- *Automatic Execute
+		*Special Store Procedures
+(a) Lock Trigger:- 
+(b) Logon Trigger
+(c) DDL (create, alter, drop)
+(d) DML (Insert, update, delete)
+
+				
+									
+	

@@ -1,0 +1,63 @@
+Build Server refer to updated DD PD22/22424[v2]
+
+Build Microsoft Server
+* Server name
+* Create a virtual server 
+* Create server in the VApp with the naming standard [K_vA_ApplicationName-Env, P_vA_ApplicationName-Env]
+* Build the server operating system
+* Verify the new server on the network
+* Configure SAN/NAS storage (if required) 
+*Configure server in WSUS 
+*Add server in relevant PAM group in AD
+
+Required information
+Server Name: M857PRD1
+System Code:  <CBAPPCTL>
+IP Address: 10.108.63.3
+Number of CPU s required:  4vCPU
+Amount of memory required:  16GB
+Operating System required: Windows Server 2022
+Environment:  PROD 
+Total Disk Space Required:    333GB
+Breakdown of Disk Space:  
+B: Backup Drive – 1 GB
+C: Sys Drive – 80 GB
+E: Executable Drive – 100 GB
+F: Data Drive – 50 GB
+G: Log Drive – 50 GB
+I: Index Drive – 50 GB
+T: Temp Drive – 50 GB
+W: Paging Files – 32 GB
+
+
+Server Location: KENMORE
+VCloud Director (if applicable): Refer to DD PD22/22424[v2]
+WSUS Folder: Production 
+MS Virtual Server Build - Configure Access
+Configure User Access to Server
+- Add username and payroll numbers of employees who require access to this system
+- If Service Account or Generic Account, list Employee Payroll number of user(s) who have access to that account
+
+Service Application Information Required
+Service or application Owner: 
+This will be the person contacted:
+* In the event of problems/issues 
+* Contacted each month regarding patching
+
+Refer to DD PD22/22424[v2]
+
+Any non-standard software required:  * IIS * Citrix * etc.
+Confirm SNMP is working with SNMPWALK
+
+FOR SAP BUILD ONLY:
+- Check SAP_Admin_<env> is in the local admin group, reference build spreadsheet tab for any additional accounts
+
+OS Licensing.
+Does this VM have limitation of License to share across more than one or two host in the same cluster: YES / NO
+IF yes then mentioned the host name where VM has been pinned down.
+
+Note: Details should be capture from Design document and if it’s not there then considered to be not applicable.
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+Telnet the required port
+Port number 111, 2049, 

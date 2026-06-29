@@ -1,0 +1,110 @@
+1. @@version --> product version reported
+
+SQL Server version
+
+Processor architecture
+
+SQL Server build date
+
+Copyright statement
+
+SQL Server edition
+
+Operating system version
+Azure -->{SELECT SERVERPROPERTY('EngineEdition'). This query will return '5' for Azure SQL Database, '8' for Azure SQL Managed Instance, and '6' or '11' for Azure Synapse.}
+For Azure SQL Database and Azure SQL Managed Instance, the following information is returned.
+
+Edition- "Microsoft SQL Azure"
+
+Product level- "(RTM)"
+
+Product version
+
+Build date
+
+Copyright statement
+
+
+2. @@DBTS -->returns the last-used timestamp value of the current database
+An insert or update of a row with a timestamp column generates a new timestamp value.
+
+USE AdventureWorks2012;  
+GO  
+SELECT @@DBTS;  
+
+3. @@LANGID --> To view information about language settings, including language ID numbers, run sp_helplanguage without a parameter specified.
+
+SET LANGUAGE 'Italian'  
+SELECT @@LANGID AS 'Language ID'
+
+
+4. @@Language --> To view information about language settings,
+ including valid official language names, run "sp_helplanguage" without a parameter specified.
+
+SELECT @@LANGUAGE AS 'Language Name'; 
+
+5. @@lock_timeout
+SET LOCK_TIMEOUT allows an application to set the maximum time that a statement waits on a blocked resource.
+ When a statement has waited longer than the LOCK_TIMEOUT setting, the blocked statement is automatically canceled, 
+and an error message is returned to the application. 
+
+This example shows the result set when a LOCK_TIMEOUT value is not set.
+SELECT @@LOCK_TIMEOUT AS [Lock Timeout];  
+GO
+
+This example sets LOCK_TIMEOUT to 1800 milliseconds and then calls @@LOCK_TIMEOUT.
+SET LOCK_TIMEOUT 1800;  
+SELECT @@LOCK_TIMEOUT AS [Lock Timeout];  
+GO
+
+
+6. @@Max_connections --> Returns the maximum number of simultaneous user connections allowed on an instance of SQL Server.
+The actual number of user connections allowed also depends on the version of SQL Server that is installed and the limitations of your applications and hardware.
+To reconfigure SQL Server for fewer connections, use sp_configure.
+
+SELECT @@MAX_CONNECTIONS AS 'Max Connections';
+
+
+7. @@Max_precision --> Returns the precision level used by decimal and numeric data types as currently set in the server, By default, the maximum precision returns 38.
+
+SELECT @@MAX_PRECISION AS 'Max Precision'
+
+8. @@NESTLEVEL --> Returns the nesting level of the current stored procedure execution (initially 0) on the local server.
+
+USE AdventureWorks2012;  
+GO  
+IF OBJECT_ID (N'usp_OuterProc', N'P')IS NOT NULL  
+    DROP PROCEDURE usp_OuterProc;  
+GO  
+IF OBJECT_ID (N'usp_InnerProc', N'P')IS NOT NULL  
+    DROP PROCEDURE usp_InnerProc;  
+GO  
+CREATE PROCEDURE usp_InnerProc AS   
+    SELECT @@NESTLEVEL AS 'Inner Level';  
+GO  
+CREATE PROCEDURE usp_OuterProc AS   
+    SELECT @@NESTLEVEL AS 'Outer Level';  
+    EXEC usp_InnerProc;  
+GO  
+EXECUTE usp_OuterProc;  
+GO
+
+
+
+9. @@options
+
+10. @@Remserver
+
+11. @@servername
+
+12. @@servicename
+
+13. @@Spid
+
+14. @@textsize
+
+15. @@version
+
+
+
+                                                              
