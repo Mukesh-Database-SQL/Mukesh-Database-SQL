@@ -1,0 +1,13 @@
+In SQL Server Management Studio, select Object Explorer.
+ To open Object Explorer, select F8. 
+Or on the top menu, select View, and then select Object Explorer:
+
+Object Explorer in the SSMS menu
+
+In Object Explorer, connect to an instance of SQL Server, and then expand that instance.
+
+Find and expand the Management section (assuming you have permissions to see it).
+
+Right-click SQL Server Logs, select View, and then choose SQL Server Log.
+
+The Log File Viewer appears (it might take a moment) with a list of logs for you to view.

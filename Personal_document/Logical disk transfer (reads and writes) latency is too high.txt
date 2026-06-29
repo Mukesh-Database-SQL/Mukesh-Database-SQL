@@ -1,0 +1,15 @@
+Problem:--> 
+Logical disk transfer (reads and writes) latency is too high 
+
+Causes --->
+A high Avg. Disk sec/Transfer performance counter value may occur due to a burst of disk transfer requests by either an operating system or application.
+
+Resolutions --->
+To increase the available storage subsystem throughput for this logical disk, do one or more of the following:
+
+• Upgrade the controllers or disk drives.
+ 
+• Switch from RAID-5 to RAID-0+1.
+ 
+• Increase the number of actual spindles.
+ 

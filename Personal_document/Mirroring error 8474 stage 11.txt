@@ -1,0 +1,64 @@
+18/05/2022
+* Error Message:-
+DateTime spid74s      Error: 9642, Severity: 16, State: 3.
+DateTime spid74s      An error occurred in a Service Broker/Database Mirroring transport connection endpoint,
+ Error: 8474, State: 11. (Near endpoint role: Target, far endpoint address: ”)
+
+An error occurred in a SQL Server Service Broker/Database Mirroring transport connection endpoint 
+
+Solution:--**(sqlauthority.com)
+{{{{{{{{{{#I checked data synchronization and it was fine. 
+Rows which were modified on primary was reaching to secondary as well. This means there was no issue with data movement also.
+
+#While enquiring further I learned that they are using a Read-Only Routing feature that was not working properly.}}}}}}}}}}}}}}}}}}}}}
+-------------------------------------------------------------------------------------------------------------------------------------------
+***Solution***
+Whenever we try to connect to a listener and perform read-only routing at the very same time, we were seeing mirroring endpoint error.
+
+When the request hits primary, it finds the routing and request try to go to 5022 port on secondary. That port is not meant for client connectivity and hence the error.
+
+***Follow these step*** (((www.sqlservercentral.com/forums/topic1237273-1549-1.aspx)))--
+
+1.To fix the issue, we corrected the port number to the ports on which SQL Server was listening, After fixing the issue, routing started working and we also found that error disappeared.
+
+Note:- When you restart the endpoint, It will take database offilne for the duration of the restart. It will not break the mirror. The mirroring will stop running when the endpoint is stopped. 
+after successfull restart  resume the endpoint 
+2. use master 
+GO 
+alter endpoint endpoint_name state = stopped; 
+GO
+ alter endpoint endpoint_name state = started; 
+GO
+
+Update:- *Run these command on primary 
+*If it does not resolve the problem run the command on th emirror
+if the database become supended run atler database <db name> set partner resume
+3. Also check the windows event logs and sql error logs on both servers - it may be a connectivity issue.
+
+
+((availability group))
+sys.availability_groups_cluster
+sys.dm_hadr_availability_group_states
+sys.availability_group
+
+
+(((View Replica properties)))
+sys.availability_replicas
+sys.endpoint
+sys.dm_hadr_availability_replica_cluster_nodes
+sys.availability_read_only_routing_lists
+sys.dm_hadr_availability_replica_cluster_states
+sys.dm_hadr_availability_replica_states
+sys.fn_hadr_backup_is_preferred_replica
+
+
+((View Listner Properties))
+1.To monitor the availability group listeners, use the following views:
+sys.availability_group_listener_ip_addresses
+2.sys.availability_group_listeners
+sys.dm_tcp_listener_states
+
+
+SELECT SERVERPROPERTY ('IsHadrEnabled');  
+(If IsHadrEnabled = 1, Always On Availability Groups is enabled.
+If IsHadrEnabled = 0, Always On Availability Groups is disabled.)

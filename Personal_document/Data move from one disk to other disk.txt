@@ -1,0 +1,100 @@
+System database move procdure and user database move process
+
+ (1) You can backup and restore your database; by using the WITH MOVE options you can relocate files.
+
+ (2) You can detach your database, move the database files to the desired location, re-attach the database.
+
+DBCC CHECKDB
+Check the database is structurally consistent.
+
+
+-------------------------------------------------------------
+SQl Management Studio, right click on your sql instance and choose Properties. Go down toDatabase settings and change Data and Logpaths to the new location.
+
+Then hit ok
+
+Dont forget: make sure new location has the SAME permissions as the old location (default is C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL for my instance) Right click on theData folder and go to Properties then the Permissions/Security tab. Give the SQL accounts listed there the same rights on your new location. My drive had Disk Compression on (Blue filenames) so I took that off too cause SQL gave me an error about compression.
+
+Then restore your backup database as you normally would.
+------------------------------------------------------------------
+See below link also
+
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+USE master
+GO
+ 
+CREATE DATABASE [TestMove] ON  PRIMARY
+( NAME = N'TestMove', FILENAME = N'C:\DB_Files\TestMove.mdf' , SIZE = 2048KB , FILEGROWTH = 1024KB ),
+( NAME = N'TestMove2', FILENAME = N'C:\DB_Files\TestMove2.ndf' , SIZE = 2048KB , FILEGROWTH = 1024KB ),
+( NAME = N'TestMove3', FILENAME = N'C:\DB_Files\TestMove3.ndf' , SIZE = 2048KB , FILEGROWTH = 1024KB )
+ LOG ON
+( NAME = N'TestMove_log',
+FILENAME = N'C:\MSSQL\DATA\TestMove_log.ldf' ,
+ SIZE = 1024KB , FILEGROWTH = 10%)
+GO
+Now just create a test table, insert one row and do a simple select.
+
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+USE TestMove
+GO
+ 
+CREATE TABLE Test(id INT)
+GO
+INSERT Test VALUES(1)
+GO
+ 
+SELECT * FROM Test
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+ALTER DATABASE TestMove
+SET OFFLINE;
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+USE master;
+GO
+ALTER DATABASE TestMove
+MODIFY FILE
+(
+    NAME = TestMove,
+    FILENAME = N'D:\DB_Files\TestMove.mdf'
+);
+GO
+ 
+USE master;
+GO
+ALTER DATABASE TestMove
+MODIFY FILE
+(
+    NAME = TestMove2,
+    FILENAME = N'D:\DB_Files\TestMove2.ndf'
+);
+GO
+ 
+USE master;
+GO
+ALTER DATABASE TestMove
+MODIFY FILE
+(
+    NAME = TestMove3,
+    FILENAME = N'D:\DB_Files\TestMove3.ndf'
+);
+GO
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+ALTER DATABASE TestMove
+SET ONLINE;
+TSQL
+LINE NUMBER OFF | HIDE | SELECT ALL
+SELECT name, physical_name AS CurrentLocation, state_desc
+FROM sys.master_files
+WHERE database_id = DB_ID(N'TestMove');
+----------------------------------------------------------------------------------------------
+
+http://blogs.lessthandot.com/index.php/DataMgmt/DBAdmin/MSSQLServerAdmin/how-to-move-datafiles-to-a-new-drive-in
+
+http://www.petri.co.il/move-db-files-in-sql-server-taking-db-offline.htm
+
+---------------------------------------
+https://www.sqlshack.com/move-sql-database-files-mdf-ldf-another-location/

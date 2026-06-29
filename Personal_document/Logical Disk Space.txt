@@ -1,0 +1,70 @@
+Logical Disk Free Space is low 
+  Alert Description 
+
+Resolution:-
+Resolutions
+To increase the amount of available disk space, do one or more of the following:
+
+• Run Disk Cleanup to gain more free space on the disk. 
+ 
+• Back up and remove files, or delete unnecessary files from the disk. 
+ 
+• Move files to another disk or to offline storage.
+ 
+• Purchase additional storage or switch to a larger disk.
+ ------------------------------------------------------------------------------------------------------------------------
+
+1. Log file:---->
+Large file ko shrink kr dete hai
+Dev--Full backup
+UAT-- Full & transaction log backup
+------------------------------------------------
+Reduce log file script----->>>>
+
+USE [WasteKnotTransform]
+GO
+DBCC SHRINKFILE (N'WasteKnotTransform_log' , 1024)
+GO
+--------------------------------------------------
+
+Change --data to file 
+
+Change size 1024 mb
+
+
+2. Data File----> 
+ *Extra data ko \\nas-ds pr daal dete hai
+ *data drive ko bdlwa dete hai Ahrar Sir se puch kr ke 
+ *We can not shrink data file 
+---------------------------------------------------------------------------------------------
+Follow such steps:-
+The below steps are being carried out in Logical Disk Space Low – SQL
+1.	First Connect to RDP with jump server
+2.	Inside of jump server connect to rdp with sql server
+3.	Open file explorer (win key + E) 
+4.	Select This PC option (where showing all disk drive option (data, log, other))
+5.	Check the drive free space is low to threshold space or not
+6.	If drive space is low in Log drive, then we are following such steps to create space in log drive
+•	Open Log drive in file extension
+•	Compare the disk space value with threshold value
+•	Check which log files are taking large space in log 
+•	Then we are open SSMS (sq server management studio)
+•	Connect Sql Server instance with windows authentication
+•	Open database folder 
+•	Select database those are taking large space in log drive
+•	Go to task and click on shrink file 
+•	Select log file and give shrink size in mb 
+•	Execute this script 
+•	After successful script execution check the disk size of file execution
+7.	Follow some more steps, to increase the amount of available disk space, do one or more of the following:
+•	Run Disk Clean up to gain more free space on the disk. 
+•	Back up and remove files, or delete unnecessary files from the disk. 
+•	Move files to another disk or to offline storage.
+•	Purchase additional storage or switch to a larger disk.
+8.	If drive space is low Data drive, then we have followed such steps: -
+•	Open Data Drive in file extension
+•	Compare the disk space value with threshold value
+•	We cannot shrink data drive 
+•	Remove unwanted data/ old data from drive or
+•	Move old or extra data from disk drive to \\nas-ds folder 
+•	Take an approval for increase the disk size from backend team 

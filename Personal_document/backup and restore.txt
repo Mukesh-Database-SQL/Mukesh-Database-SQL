@@ -1,0 +1,97 @@
+====---Backup Strategy-----=====  
+-------------------------------- Perform Night
+1. direct to data domain (full backup and transaction log backup) -- BCCDDA01/BCCDDA02
+2. Full and transaction log backup to NAS
+
+Transaction log backup perform only (UAT / PRD)
+Take a backup and directly send to data domain 
+6 week nightly  backup are maintain on data domain
+database group restore and recover the database in single compact step
+Standard sql server restore mechanism is not used to restore a database
+
+NAS(remote control) backup are suitable for Non- production envionment. 
+-6 week days are maintain transaction log backup
+-1 day of full backup of each database  
+-6week of nightly ackup are maintain
+Transaction Log Backups can be found in: \NAS-SMB\SQL_Server_DB_Backups\TLogs\<HOSTNAME>\<INSTANCENAME>\
+Full Backups can be found in: \NAS-MB\SQL_Server_DB_Backups\Full\<HOSTNAME>\<INSTANCE NAME>\
+--------------------------------------------
+simple recovery process
+protect by site replication
+sql server native backup
+--------------------------------------------
+Once the database has been restored, run a CHECKDB over it to ensure it is valid.
+DBCC CHECKDB (<DATABASE_NAME>);
+
+Change Recovery model--===>
+USE [master] ;  
+ALTER DATABASE [db-name] SET RECOVERY simple,FULL, bulklogged ;  
+
+Backup command==--->
+Backup database [db-name] To disk ='path\extention(.bak, .dif, .trn)'
+
+restore command==---->
+Restore database From disk = 'path(database)' with move 'logial_disk' To 'Physical_disk'
+
+Log transaction apply---->
+Restore log [db-name] from disk ='path' with recovery/norecovery
+
+-----------------------------------------------------------------------------------------------------------------
+After taking backup verify------->
+1. Verify backup is readable or successful backedup
+Restore verifyonly from disk='path'  
+
+2. Gives the list of all backups in file
+Restore headeronly from disk ='path'
+
+3. Labelonly --gives you the backup media information
+Restore lableonly from disk= 'path'
+
+4. Filelistonly --gives list of all of the files that were backed up for a give backup
+Restore filelistonly from disk= 'path'
+sp_who2 or SSMS to see what connections are using the database you are trying to restore.
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Check the backup in applicaiton log file:--->
+
+If the backup ran as part of a SQL agent job, check the job history for that job (not the "SQL agent log").
+If the backup ran as part of a SSIS package, check the SSIS package log, if it was configured to create one.
+If the backup ran as part of a SQL maintenance plan, check the history for that maintenance plan.
+If the backup was run via a 3rd-party backup software, check that application's log.
+If you can't find it anywhere else, 
+check the Windows application event log to see if something else was logged by another application at the same time "BACKUP failed" was logged by MSSQLSERVER.
+
+--------------------------------------------
+
+Check restore history-->
+
+ SELECT
+   [rs].[destination_database_name],
+   [rs].[restore_date],
+   [bs].[backup_start_date],
+   [bs].[backup_finish_date],
+   [bs].[database_name] as [source_database_name],
+   [bmf].[physical_device_name] as [backup_file_used_for_restore]
+FROM msdb..restorehistory rs
+INNER JOIN msdb..backupset bs ON [rs].[backup_set_id] = [bs].[backup_set_id]
+INNER JOIN msdb..backupmediafamily bmf ON [bs].[media_set_id] = [bmf].[media_set_id]
+ORDER BY [rs].[restore_date] DESC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

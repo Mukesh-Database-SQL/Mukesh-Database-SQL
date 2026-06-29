@@ -1,0 +1,56 @@
+• Develop high-quality database solutions.
+• Use SQL to develop and implement procedures and functions.
+• Re-write queries from oracle to SQL
+• Change impacted queries based on changes to data model.
+• Review and interpret ongoing business report requirements.
+• Research required data.
+• Build appropriate and useful reporting deliverables.
+• Analyze existing SQL queries for performance improvements.
+• Suggest new queries.
+• Develop procedures and scripts for data migration.
+• Provide timely scheduled management reporting.
+• Investigate exceptions with regard to asset movements.
+
+
+*TCS:-- strong experience in writing SQL Queries, Dynamic-queries, sub-queries, and complex joins for generating Complex Stored Procedures, User-defined Functions, and Views.
+{Must-Have:
+
+Working knowledge on SQL,PL/SQL to bring & collate data from various source systems (Specifically SQL Server and Oracle).
+Working experience in developing SQL packages and stored procedures
+Sound understanding in relational database architecture
+Sound ETL knowledge in SSIS}
+
+
+*Programmers.io --> anvesha.singh@programmers.io
+{• Excellent SQL Skills
+
+• Working Experience in SSRS/SSIS.
+
+Excellent written and verbal communication skills in English, Self-motivated with a strong sense of ownership, and Ready to learn new tools and technologies}
+
+
+
+*L&T:- 1) ETL Developer (Pentaho) with Hands on 5 to 6 years’ experience
+
+2) MS SQL Development 6 to 8 years’ Experience
+
+3) Oracle knowledge.
+
+4) Debt Manager 9.9 // 11.2 or above Knowledge if we can get Debt Manager Fico certified resources, we need to consider on priority which will add value
+
+5) Linux / Windows Knowledge
+
+6) Banking and Financial Background around 6 to 8 years.
+
+7) Should have resource management skills of at least 4 years
+
+8) Should be able to provide estimation for middle and large size projects.
+
+9) Should be able to mentor new resources within Team.
+
+10) Good Stake Holder Management.
+
+11) Good communication skill.
+
+
+

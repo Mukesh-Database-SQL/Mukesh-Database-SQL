@@ -1,0 +1,8 @@
+* gathers hardware and software information of computers and other devices on a computer network for management, compliance and audit purposes.
+* Reports from the inventory enable complete hardware and software reports on the devices and can be used to identify problems
+* Lansweeper can collect information on all Windows, Linux and Mac devices and can also IP-addressable network appliances.
+* A Lansweeper installation consists of 3 components. A default setup contains one database, one web console and one scanning service, all located on the same machine. 
+ Depending on the size and complexity of your network you can choose to spread out your components and/or add additional scanning services across several machines.
+* Database The database stores asset data that has been scanned or manually submitted as well as your scanning targets and encrypted credentials, reports, settings and helpdesk data.
+  When performing an Easy Install, a Microsoft SQL LocalDB database is included. SQL LocalDB databases have a maximum capacity of 10GB, a limit set by Microsoft.
+* 

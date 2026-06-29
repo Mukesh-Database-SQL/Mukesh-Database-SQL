@@ -1,0 +1,42 @@
+12 things are required to save from patching server
+
+following such step :- first open sql server refresh procesdure wiki page, Open \\nas-ds (network sharing file and save file in CRQ folder in SQL server backup---> adhock backup)
+
+NOTE:- Command run krne ke baad Result ko copy paste krna hota h  
+1. (CRQ ke name se folder bnayege ---NAS par(adhock me))
+2. current_sp(service pack) koon sa hai wo check krege
+3. Instance Check krege (micosoft configuration me)----> sare instance ke details folder bna kr usme rhkege
+4. Full backup of master, model, msdb, resource db (binary form or logical file) (MSSQL, defaltdb, resource db)
+5. Login details (server----->revloings)
+6. End point (select*from sys.endpoints)--->> Save endpoint data in excel sheet
+7. Linked server(script se details nekalege)
+8. Job (save krege right click kr ke job file ko)-----> select all jobs and store in file CRQ
+9. sp_help_dp (copy and paste in excel)----> compliance and compatibility level
+10. Sql server Configuration
+
+
+Wiki page:--
+Upgrade SQL Server 2016 SP2 CU16(13.0.5882.1) Infrastructure to SQL Server SP3(13.0.6300.2)  accordance with procedure on M642PRD1,M641PRD1
+http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Service%20Pack%20upgrade%20Procedure%20%28Generic%29
+
+Doer-Checker Process for patching:----> (20/05/2022) patching on Production server
+
+INSTALLATION PLAN (High Level Steps)
+0.     Stop all services on the  M642PRD1,M641PRD1
+1.     Backup all databases within the scope of the patching exercise.     
+2.     Snapshot the  M642PRD1,M641PRD1
+3.     Upgrade SQL Server 2016 SP2 CU16(13.0.5882.1) Infrastructure to SQL Server SP3(13.0.6300.2)  accordance with procedure on M642PRD1,M641PRD1
+http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Service%20Pack%20upgrade%20Procedure%20%28Generic%29
+4.     Perform Health check on  M642PRD1,M641PRD1 Servers.
+5.     Application team will perform acceptance testing on the upgraded applications.
+6.     Remove snapshots.
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSTALLATION PLAN (High Level Steps)
+
+1. Check the load on the Database Server is light and application support has confirmed there is no extra processing to be imposed by business requirements. 
+2. The load on the Backup Server is light and the backup infrastructure support has confirmed there is no issues with processing another backup.
+3. Confirm there are no application connections to the nominated databases.  
+4. Hold the database down for a week and confirm no application is adversely affected prior to decommissioning.
+5. Decommission database in accordance with http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Database%20Decommissioning%20Procedure%20%28Generic%29
+6. DBA confirms decommissioning  has been completed successfully in accordance with http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Database%20Decommissioning%20Procedure%20%28Generic%29

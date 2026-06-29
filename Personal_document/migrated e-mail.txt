@@ -1,0 +1,5 @@
+Hi Team,
+
+PLease put the database Pentana_Retain,Pentana_Vision,Opertaion_Central,CPO_PRIMAVERA_MAJPROJECTS_PMO_DEV,CPO_PRIMAVERA_PROJECTS_PMDB,CPO_PRIMAVERA_TENDERS_PMDB,eForms in mm mode for 6 months hosted on server M638UAT1/M638DEV1/M637UAT1/M637DEV1/M638PRD1/M637PRD1 as this database has been migrated to M845UAT1/M845PRD1/M844UAT1/M601DEV1/M903PRD1/M844PRD1/M844DEV1/ as per crq <<crq number>> 
+CRQ Details:-
+OP & OP_BCLP ----> CRQ000002064896

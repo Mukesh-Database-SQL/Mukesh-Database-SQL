@@ -1,0 +1,5 @@
+# Test Azure Communication
+Test-NetConnection -ComputerName <Azure-Endpoint-URL> -Port 443
+
+# Test Internal Node Communication
+Test-NetConnection -ComputerName  m683uat1.bcc.qld.gov.au -Port 8060

@@ -1,0 +1,7 @@
+1.sp_help--- summary inforamtion of objects of all types that exist in the current database is returned
+2.sp_helpconstraint--- [table mo_message] table--which constarint information is returned, the table specified must be local to the current database, it's optional parameter that points the table name (msg.nomsg), return code is (0-success, 1-failure), 
+display descending indexed column if it participated in primary keys.
+3.sp_helpdb--- report information about specifed database
+sp_helpdb [[@dbname=]'name']
+
+

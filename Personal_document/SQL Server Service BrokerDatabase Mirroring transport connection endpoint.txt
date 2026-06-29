@@ -1,0 +1,48 @@
+SQL Server Service BrokerDatabase Mirroring transport connection endpoint 
+
+  
+Source:    M730UAT1\OUSCCM01 
+Full Path Name:    M730UAT1\OUSCCM01 
+Alert Rule:    MSSQL on Windows: An error occurred in a SQL Server Service Broker/Database Mirroring transport connection endpoint 
+Created:    15/06/2022 12:02:57 AM 
+  Event ID: 9642. An error occurred in a Service Broker/Database Mirroring transport connection endpoint, Error: 8474, State: 11. (Near endpoint role: Target, far endpoint address: '')
+ 
+
+Resolutions
+Locate this error in the application log and resolve the problem that caused it.
+
+External Knowledge Sources
+See "Troubleshooting Routing and Message Delivery" in SQL Server Books Online.
+
+Overridable Parameters
+Name
+ Description
+ Default Value
+ 
+Enabled
+ Enables or disables the workflow.
+ Yes
+Interval (seconds)
+ The recurring interval of time in seconds in which to run the workflow.
+ 300
+ 
+Priority
+ Defines Alert Priority.
+ 1
+ 
+Severity
+ Defines Alert Severity.
+ 2
+ 
+Synchronization Time
+ Synchronization Time
+  
+ 
+Timeout (seconds)
+ Specifies the time the workflow is allowed to run before being closed and marked as failed.
+ 200
+ 
+Timeout for database connection (seconds)
+ The workflow will fail and register an event, if it cannot access the database during the specified period.
+ 15
+ 

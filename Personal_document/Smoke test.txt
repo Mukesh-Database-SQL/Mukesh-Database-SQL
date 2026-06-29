@@ -1,0 +1,2 @@
+It is a simple test that shows the product is ready for testing.  the build is flawed as to make any further testing a waste of time and resources. 
+Code --> Unit Testing --> integration Testing --> Sanity Testing --> Smoke Testing --> Funtional Testing

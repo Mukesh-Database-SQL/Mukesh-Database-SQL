@@ -1,0 +1,10 @@
+Hi Pavle,
+
+
+We have received an alert for space crunch on F drive of server M641PRD1, as checked there is no space left in F drive of server M641PRD1, the total size of the drive is 349GB space. The data for M641PRD1 is purged and no files are to be deleted or can be shrinked.
+
+As checked on the SQL Server, there is bulk operation running on the database OPTM_PDM. Below is the database growth report of server M641PRD1.
+
+ 
+
+Please provide your approval for increasing space by 150GB on F drive.

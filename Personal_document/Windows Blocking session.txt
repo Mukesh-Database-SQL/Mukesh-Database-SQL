@@ -1,0 +1,8 @@
+Summary
+The Blocking Sessions Monitor detects if a blocking situation exists.
+
+
+Blocking occurs when one session holds a lock on a specific resource and
+ a second session attempts to acquire a conflicting lock type on the same resource.
+ Blocking is an unavoidable characteristic of any relational database management system (RDBMS) 
+with lock-based concurrency. However, too much blocking can cause performance issues.

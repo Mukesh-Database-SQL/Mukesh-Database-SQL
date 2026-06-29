@@ -1,0 +1,9 @@
+Vendor
+Cost
+Material
+Position
+
+Check every day
+
+Update: We have checked PRFL_MAKT_CONTENT of project MATERIALS_SAP has Failed in UAT,  has completed successfully on next run, hence resolving the incident
+

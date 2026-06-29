@@ -1,0 +1,159 @@
+Hi Team,
+ 
+This is in reference to CRQ000002061017. The respective steps have been successfully performed and were in accordance with the Doer Checker guidelines. 
+
+I, “Abdul Wase” (Checker) was in sync with “Ashok Pal” (Doer) during the course of the steps in Production environment.
+
+INSTALLATION PLAN (High Level Steps)
+1.	Login to the server
+2.	Open the sql server database
+3.	Create require user and login
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+BUSINESS RULES:
+Privileged account maintenance must be performed regularly to ensure compliance with Council's ICT Security policies whilst ensuring the ongoing operational viability of Council's SQL Server Databases. The scope of this maintenance covers the following activities on existing infrastructure accounts:
+"	Password Changes 
+"	Unlocking of SQL Server Accounts
+"	Privilege Increase and Decrease
+"	Locking of SQL Server Accounts
+
+The accounts encompassed within this change are not in use by applications or used in any way to provide an application service to the Council businesses.
+
+Production changes should first be applied SUCCESSFULLY to a non-production environment.
+Both Production and Non Production changes can be performed within business hours.
+
+SA account changes DO NOT require Application owner approval.
+
+Server Accounts DO NOT require application owner approval.
+
+ARTEFACT(S) TO BE INCLUDED
+If this is a production change then it should be related to a similar SUCCESSFUL activity carried out in a non-production environment. 
+If the account is to have a privilege increase/decrease, a script detailing the actions must be attached to the change along with a rollback script.
+
+== BUSINESS DRIVER & SCHEDULING IMPLICATIONS ==
+
+BUSINESS DESCRIPTION OF THE CHANGE/RELEASE: 
+To ensure compliance with Council's ICT security policies and the ongoing operational viability of Council's SQL Server Databases, privileged account maintenance is required to be performed. This maintenance covers the following activities to EXISTING SQL Server Database Infrastructure Accounts :
+"	Password Changes 
+"	Unlocking of SQL Server Accounts
+"	Privilege Increase and Decrease
+"	Locking of SQL Server Accounts
+
+The accounts encompassed within this change are not in use by applications or used in any way to provide an application service to Council businesses.
+
+EXPLAIN THE IMPACT TO BCC, IF THE CHANGE/RELEASE FAILS:
+The account will be in the same state as it was before the change activity was undertaken - once rollback has been performed.
+
+IF THE CHANGE/RELEASE IS RESCHEDULED OR DEFERRED, HOW WILL THIS IMPACT ON BCC BUSINESS:
+If this change has been raised in response to an incident then the incident will not be resolved in a timely manner.
+
+If this change has been raised in response to a project requirement then the project deadlines may not be met.
+
+BUSINESS IMPACT DURING THE CHANGE/RELEASE DEPLOYMENT:
+There is NO disruption of service as these accounts are not used by applications.
+
+BUSINESS IMPACT POST THE CHANGE/RELEASE:
+None. This change is about ensuring the correct access is granted to infrastructure accounts which are NOT used by applications. There are no application functionality changes.
+
+BUSINESS AREA IMPACTED BY THE CHANGE (BOTH DURING AND POST):
+None
+
+CUSTOMER AND END USER COMMUNICATIONS OCCURRING (PRE, DURING AND POST):
+1.	Pre-Implementation - None
+2.	During - None
+3.	Post-Implementation - None.
+
+
+== RISK MANAGEMENT ==
+
+WHAT ARE THE KEY RISKS ASSOCIATED WITH THE INSTALLATION OF THIS CHANGE?  HOW HAVE THEY BEEN MITIGATED?
+
+Risk during installation:  Password change may result in disruption of monitoring for the database infrastructure. 
+Likelihood:  Unlikely
+Mitigation:  DBA to perform infrastructure verification testing which includes health check through monitoring infrastructure. DBA to backup old password and reinstate if required as a rollback measure.
+
+Risk during installation:  Privilege decrease may result in disruption of monitoring for the database infrastructure.
+Likelihood:  Unlikely
+Mitigation:  DBA to perform infrastructure verification testing which includes health check through monitoring infrastructure. DBA to backup old password and reinstate if required as a rollback measure.
+
+
+WHAT ARE THE KEY RISKS ASSOCIATED WITH THIS CHANGE POST INSTALLATION?  HOW HAVE THEY BEEN MITIGATED?
+
+Risk post installation:  Disruption of application service due to maintenance.
+Likelihood:  Unlikely
+Mitigation: DBA will liaise with the ISS and Application support groups to ensure the account is not in use by application services. 
+
+Risk post installation:  Disruption of monitoring of database infrastructure due to maintenance.
+Likelihood:  Unlikely
+Mitigation:  Infrastructure verification testing will ensure any monitoring disruption will be restricted to the change window and will not continue after the change.
+
+== TECHNICAL DESCRIPTION ==
+
+TECHNICAL DESCRIPTION OF THE CHANGE/RELEASE DEPLOYMENT:
+The purpose of this change is to perform account maintenance to one or more operational accounts/users within Council's ICT Infrastructure.
+
+A rollback position must be established before ALL Maintenance. Rollback scripts should be attached to the work notes of this change. 
+
+DATABASE NAME: BeaconMetrics 
+SERVER NAME: M903PRD1
+ENVIRONMENT: PRODUCTION 
+ACCOUNT TYPE:OPERATIONAL USER ACCOUNT
+ACCOUNT NAME: SHIR_BEACON
+ACTIVITY: PRIVILEGE CHANGE
+
+TECHNICAL IMPACT DURING THE CHANGE/RELEASE DEPLOYMENT: 
+System/ Service Impacted:  Database Infrastructure Monitoring
+Start/Finish time of impact:  2/06/2022 5:00PM to 8:00PM
+Impact:  No impact
+Impact Summary:  No impact as the new user is created .
+== TESTING AND DEPLOYMENT==
+
+WHAT TESTING HAS BEEN CONDUCTED
+User reference mail has been attached
+Unit Testing:  N/A
+Test Plan: N/A
+System Testing: N/A  
+User Acceptance Testing: N/A 
+Installation Plan Testing:  N/A 
+Backout Plan Testing:  N/A 
+Performance & Load Testing: N/A  
+
+INSTALLATION and VERIFICATION PLANS
+DBA confirms maintenance applied successfully. 
+Once confirmed close the ITSM7 change and any related incidents.
+
+ROLLBACK PLAN (High Level Steps)
+DBA can reinstate the account back to original state by running the attached rollback script.
+
+RESOURCING CONFIRMATION (High Level Steps)
+
+The resources are confirmed for:
+Database (mandatory): Ashok Pal
+
+Standard BAU change activity 
+
+TDS CONSULTED
+Paul Taylor
+--------------------------------------------------------------------------------------------------------------------------
+1/06/2022
+
+[CMO] INF060 -Database - SQL Server Privileged Account Maintenance - ENV:PRD
+
+
+Create User Script ---->>
+
+
+USE [master]
+GO
+CREATE LOGIN [SHIR_BEACON] WITH PASSWORD=N'XXXXX', DEFAULT_DATABASE=[BeaconMetrics], 
+CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+GO
+USE [BeaconMetrics]
+GO
+CREATE USER [SHIR_BEACON] FOR LOGIN [SHIR_BEACON]
+GO
+--------------------------------------------
+
+Rollback script
+Use Master
+Drop login SHIR_BEACON

@@ -1,0 +1,6 @@
+Notes to Database Team:
+Perform pre checks of target hosts prior to commencing work as per the procedure outlined in http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Infrastructure%20Installation%20Procedure%28Generic%29. Liaise with Wintel, Networks and Security Operations team to resolve any issues encountered.
+
+Install SQL Server Instance whilst complying with procedure outlined in http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Infrastructure%20Installation%20Procedure%28Generic%29. Liaise with Wintel, Networks and Security Operations team to resolve any issues encountered.
+
+Perform acceptance test of SQL Server Instance as outlined in http://supportdocs1.bcc.qld.gov.au:8080/wiki_db/Wiki.jsp?page=SQL%20Server%20Infrastructure%20Installation%20Procedure%28Generic%29. Liaise with Wintel, Networks and Security Operations team to resolve any issues encountered.

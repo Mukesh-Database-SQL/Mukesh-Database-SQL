@@ -1,0 +1,79 @@
+How many server are aviable in BCC
+-----------------------------------------------
+Total 329 SQL Server 
+SQL Server 2014	2
+SQL Server 2016	201
+SQL Server 2017	26
+SQL Server 2019	100
+(blank)	
+Grand Total	329
+
+
+M601DEV1
+M608DEV1
+M637DEV1
+M638DEV1
+M641DEV1
+M642DEV1
+M676DEV1
+M677DEV1
+M716DEV1
+M731DEV1
+M800DEV1
+M844DEV1
+M933DEV1
+--->>>>>> 90 database --->(HostName)
+
+Row Labels	Count of Host Name
+M601UAT1	15	15
+M637UAT1	9	9
+M638UAT1	9	9
+M641UAT1	8	8
+M642UAT1	2	2
+M650UAT1	3	3
+M653CLUAT1	4	4
+M653CLUAT2	4	4
+M669UAT1	2	2
+M676UAT1	3	3
+M717CLUAT1	16	16
+M717CLUAT2	16	16
+M730UAT1	4	4
+M734UAT1	8	8
+M790UAT1	2	2
+M830UAT1	4	4
+M841UAT1	12	12
+uatldmsdb01.database.windows.net	1	
+Grand Total	122	122--------->>>>(HostName)
+-----------------------------------------------------
+PRD 118------> HostName
+
+M601PRD1	11
+M609CLPRD1	1
+M609CLPRD2	1
+M637PRD1	11
+M638PRD1	11
+M641PRD1	5
+M642PRD1	2
+M650PRD1	2
+M653CLPRD1	4
+M653CLPRD2	4
+M669PRD1	2
+M673CLPRD1	1
+M673CLPRD2	1
+M676PRD1	5
+M677PRD1	1
+M717CLPRD1	13
+M717CLPRD2	13
+M730PRD1	7
+M731PRD1	1
+M734PRD1	8
+M790PRD1	2
+M830PRD1	4
+M841PRD1	2
+M903PRD1	2
+M905CLPRD1	1
+M905CLPRD2	1
+M933CLPRD1	1
+M933CLPRD2	1
+prdldmsdb01.database.windows.net	1
+-------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,41 @@
+MSSQL on Windows: Database ROWS Data is Out of Space 
+
+Monitors the space available on the database and on the media hosting the database. 
+The space available on the media hosting the database is only included as part of the space available if autogrowth is enabled for at least one of the files. 
+Note that this monitor does not count free space for FILESTREAM and Memory-Optimized Data file groups.
+
+
+Causes
+An unhealthy state is caused by having low free space across ROWS database files. Low free space can be caused by:
+
+Inadequate file configuration settings (size, max size, autogrowth, etc.)
+
+Inadequate space left on media
+
+
+Resolutions
+This issue may be resolved by either:
+
+• Increasing the allocated size for a file or all files within a Filegroup if autogrowth is disabled
+ 
+• Increasing the max size value for a file if autogrowth is enabled
+ 
+• Enabling autogrowth for at least one file
+ 
+• Moving files to another drive with more free space if growth space is limited
+ 
+• Modifying the thresholds for this monitor to suit the workload
+ 
+• Alternatively if total DB space is not a concern for the database:
+
+• Disable this monitor for this specific Filegroup or all Filegroups
+ 
+------------------------------------------------------------------------------------------------
+File and Filegroup
+The os_file_name is the name of the physical file including the directory path.
+
+The logical_file_name is the name used to refer to the physical file in all Transact-SQL statements.
+ The logical file name must comply with the rules for SQL Server identifiers and must be unique among logical file names in the database.
+
+Read/write data filegroups and log files cannot be placed on an NTFS compressed file system.
+Only read-only databases and read-only secondary filegroups can be put on an NTFS compressed file system. 

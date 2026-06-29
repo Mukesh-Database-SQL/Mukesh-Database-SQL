@@ -1,0 +1,9 @@
+MSSQL on Windows: An error occurred in a SQL Server Service Broker/Database Mirroring transport connection endpoint 
+
+Try to review read-only routing url in the availability group properties / read only routing.
+Try to verify what encryption algorytm you are using.
+
+select name, type_desc, state_desc, role_desc, is_encryption_enabled, connetion_auth_desc, encryption_algorithm_desc
+From sys.database_mirroring_endpoints;
+
+Usally AES. Verify if you are using the same algorythm in both node.

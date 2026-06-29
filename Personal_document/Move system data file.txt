@@ -1,0 +1,23 @@
+USE master
+GO
+ 
+--tempdb
+ALTER DATABASE tempdb
+MODIFY FILE( NAME = tempdev, FILENAME = 'C:\MSSQL\SystemDatabases\tempdb.mdf' )
+ 
+ALTER DATABASE tempdb
+MODIFY FILE( NAME = templog, FILENAME = 'C:\MSSQL\SystemDatabases\templog.ldf')
+ 
+--model
+ALTER DATABASE model
+MODIFY FILE( NAME = modeldev, FILENAME = 'C:\MSSQL\SystemDatabases\model.mdf' )
+ 
+ALTER DATABASE model
+MODIFY FILE( NAME = modellog, FILENAME = 'C:\MSSQL\SystemDatabases\modellog.ldf')
+ 
+--msdb
+ALTER DATABASE msdb
+MODIFY FILE( NAME = MSDBData, FILENAME = 'C:\MSSQL\SystemDatabases\MSDBData.mdf' )
+ 
+ALTER DATABASE msdb
+MODIFY FILE( NAME = MSDBLog, FILENAME = 'C:\MSSQL\SystemDatabases\MSDBLog.ldf')

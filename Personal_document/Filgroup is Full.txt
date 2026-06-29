@@ -1,0 +1,67 @@
+MSSQL on Windows: Could not allocate space for object in database because the Filegroup is full 
+  Alert Description 
+   
+Source:    M730PRD1\OUSCCM01 
+Full Path Name:    M730PRD1\OUSCCM01 
+Alert Rule:    MSSQL on Windows: Could not allocate space for object in database because the Filegroup is full 
+
+Resolutions
+To gain more space, you can free disk space on any disk drive containing a file in the full Filegroup, 
+allowing files in the group to grow. Or you can gain space using a data file with the specified database.
+
+You can free disk space on your local drive or on another disk drive. To free disk space on another drive:
+
+• Move the data files in the Filegroup with an insufficient amount of free disk space to a different disk drive.
+ 
+• Detach the database by executing sp_detach_db.
+ 
+• Attach the database by executing sp_attach_db , pointing to the moved files.
+ 
+
+Another solution is to add a data file to the specified database using the ADD FILE clause of the ALTER DATABASE statement.
+ Or you can enlarge the data file by using the MODIFY FILE clause of the ALTER DATABASE statement, specifying the SIZE and MAXSIZE syntax.
+--------------------------------------------------------------------------------------------------------------------------------------------------
+* To move a data file or log file to a new location, 
+specify the current logical file name in the NAME clause and specify the new path and operating system file name in the FILENAME clause. 
+For example:
+
+MODIFY FILE (NAME = logical_file_name, FILENAME = ' new_path/os_file_name ')
+
+
+Two type of Move are available:-
+1. Move User Database:-
+* In SQL Server, you can move the data, log, and full-text catalog files of a user database to a new location 
+by specifying the new file location in the FILENAME clause of the ALTER DATABASE statement. 
+This method applies to moving database files within the same instance SQL Server.
+
+** To move a database to another instance of SQL Server or to another server, use backup and restore or detach and attach operations.
+
+
+View to list all edition-specific features that are enabled in the current database.
+sys.dm_db_persisted_sku_features
+
+the logical name of the database files.
+sys.master_files 
+
+
+To move a data or log file as part of a planned relocation, follow these steps:
+
+1. For each file to be moved, run the following statement.
+
+ALTER DATABASE database_name MODIFY FILE ( NAME = logical_name, FILENAME = 'new_path\os_file_name' );
+
+
+2. Run the following statement to bring the database offline.
+ALTER DATABASE database_name SET OFFLINE;
+
+ALTER DATABASE database_name SET OFFLINE WITH ROLLBACK IMMEDIATE;  
+
+3. Move the file or files to the new location.
+
+4. Run the following statement.
+ALTER DATABASE database_name SET ONLINE;
+
+5. Verify the file change by running the following query.
+SELECT name, physical_name AS CurrentLocation, state_desc  
+FROM sys.master_files  
+WHERE database_id = DB_ID(N'<database_name>');

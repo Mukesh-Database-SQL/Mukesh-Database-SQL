@@ -1,0 +1,56 @@
+If a file must be moved because of a hardware failure, use the following steps to relocate the file to a new location.
+
+NOte:-->> If the database cannot be started, that is it is in suspect mode or in an unrecovered state, 
+only members of the sysadmin fixed role can move the file.
+
+1.Stop the instance of SQL Server if it is started.
+
+2.Start the instance of SQL Server in master-only recovery mode by entering one of the following commands at the command prompt.
+
+For the default (MSSQLSERVER) instance, run the following command.
+NET START MSSQLSERVER /f /T3608
+
+For a named instance, run the following command.
+NET START MSSQL$instancename /f /T3608  
+
+3. For each file to be moved, use sqlcmd commands or SQL Server Management Studio to run the following statement.
+ALTER DATABASE database_name MODIFY FILE( NAME = logical_name , FILENAME = 'new_path\os_file_name' );
+
+4. Exit the sqlcmd utility or SQL Server Management Studio.
+
+5. Stop the instance of SQL Server.
+
+6. Move the file or files to the new location.
+
+7. Start the instance of SQL Server. For example, run: NET START MSSQLSERVER.
+
+8. Verify the file change by running the following query.
+SELECT name, physical_name AS CurrentLocation, state_desc  
+FROM sys.master_files  
+WHERE database_id = DB_ID(N'<database_name>');
+
+
+USE master;  
+GO  
+-- Return the logical file name.  
+SELECT name, physical_name AS CurrentLocation, state_desc  
+FROM sys.master_files  
+WHERE database_id = DB_ID(N'AdventureWorks2012')  
+    AND type_desc = N'LOG';  
+GO  
+ALTER DATABASE AdventureWorks2012 SET OFFLINE;  
+GO  
+-- Physically move the file to a new location.  
+-- In the following statement, modify the path specified in FILENAME to  
+-- the new location of the file on your server.  
+ALTER DATABASE AdventureWorks2012   
+    MODIFY FILE ( NAME = AdventureWorks2012_Log,   
+                  FILENAME = 'C:\NewLoc\AdventureWorks2012_Log.ldf');  
+GO  
+ALTER DATABASE AdventureWorks2012 SET ONLINE;  
+GO  
+--Verify the new location.  
+SELECT name, physical_name AS CurrentLocation, state_desc  
+FROM sys.master_files  
+WHERE database_id = DB_ID(N'AdventureWorks2012')  
+    AND type_desc = N'LOG';

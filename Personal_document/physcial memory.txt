@@ -1,0 +1,4 @@
+* after patching reboot the server
+* Wait and watch for reboot server then work on it.
+* reboot krne se phle down time lete hai team se
+* Then we can reboot the server 

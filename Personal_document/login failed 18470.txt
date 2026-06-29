@@ -1,0 +1,59 @@
+MSSQL on Windows: Discovery error  M676PRD1  Summary
+------------------------------------------------------------------------
+MSSQL on Windows: Discovery error 
+  Alert Description 
+   
+Source:    Microsoft SQL Server on Windows Local Alert Collection (M676PRD1.ad.bcc.qld.gov.au) 
+Full Path Name:    M676PRD1.ad.bcc.qld.gov.au\Microsoft SQL Server on Windows Local Alert Collection (M676PRD1.ad.bcc.qld.gov.au) 
+Alert Rule:    MSSQL on Windows: Discovery error 
+Created:    27/06/2022 5:25:10 PM 
+  Management Group: "SCOM-PRD16"
+Module: Microsoft.SQLServer.Windows.Module.Discovery.Discoveries.AlwaysOnSeedDiscovery
+Version: 7.0.24.0
+
+Error(s) was(were) occurred:
+Message: An error occurred during discovery.
+
+
+---------- Exception: ----------
+Exception Type: Microsoft.SQLServer.Module.Helper.Sql.SmartConnectException
+Message: Cannot connect to the target Sql Server instance.
+Connection log:
+Failed to connect to data source 'lpc:M676PRD1\OUGP01': Login failed for user 'BCC\M676PRD1$'. Reason: The account is disabled.
+Error number:18470
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Solution:-
+The error says that the particular Login is Disabled.
+
+ 
+
+(a)Expand the SQL Server
+
+(c) Expand Security node
+
+(d) Select the Particular Login (User)
+
+(e) Press right button and select properties of the login
+
+(f) Go to Status table Enble the User
+-----------------------------------------------------------------------------
+Code Block
+ALTER LOGIN login_in_name ENABLE;
+-----------------------------------------------------------------------------
+
+The error shows that User 'UserName' is disabled on server, we need to enable this user on server so that it can connect to sql server.
+
+we can do this by SSMS or TSQL
+
+By SSMS:  Expand Instance of server--> Security-->Login-->userName(Right click-- properties) now go to status page & select enable in login part--> OK
+
+By TSQL: Use master
+
+                go
+
+                Alter Login UserName Enable
+
+                go
+
+U r set with you user now.

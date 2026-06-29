@@ -1,0 +1,18 @@
+12 things are required to save from patching server
+
+following such step :-
+first open sql server refresh procesdure wiki page.
+
+1. server property details
+(CRQ ke name se folder bnayege ---NAS par(adhock me))
+2. current_sp(service pack) koon sa hai wo check krege
+3. Instance Check krege (micosoft configuration me)
+4. Application (MSSQL, defaltdb, resource db)
+5. Login details (server)
+6. End point (select*from sys.endpoints)
+7. Linked server(script se details nekalege)
+8. Job (save krege right click kr ke job file ko)
+9. sp_help_dp (copy and paste in excel)
+10. collation and compatibility level
+11. Configuration
+
