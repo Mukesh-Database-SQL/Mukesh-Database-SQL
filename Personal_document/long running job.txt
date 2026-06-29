@@ -1,0 +1,26 @@
+USE msdb;
+GO
+
+SELECT 
+    j.name AS JobName,
+    h.run_date AS RunDate,
+    h.run_time AS RunTime,
+    h.run_duration AS RunDuration,
+    CASE 
+        WHEN h.run_status = 0 THEN 'Failed'
+        WHEN h.run_status = 1 THEN 'Succeeded'
+        WHEN h.run_status = 2 THEN 'Retry'
+        WHEN h.run_status = 3 THEN 'Canceled'
+        WHEN h.run_status = 4 THEN 'In Progress'
+        ELSE 'Unknown'
+    END AS RunStatus,
+    (h.run_duration / 10000 * 3600 + (h.run_duration % 10000) / 100 * 60 + (h.run_duration % 100)) AS DurationInSeconds
+FROM 
+    sysjobs j
+JOIN 
+    sysjobhistory h 
+    ON j.job_id = h.job_id
+WHERE 
+    (h.run_duration / 10000 * 3600 + (h.run_duration % 10000) / 100 * 60 + (h.run_duration % 100)) > 600 -- For jobs longer than 10 minutes
+ORDER BY 
+    h.run_date DESC, h.run_time DESC;

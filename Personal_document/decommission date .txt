@@ -1,0 +1,22 @@
+select Server_ID,Server_Name,Last_Modified_Date,Decommission_date,Decommission_Date from bcc.MSSQL_Server
+where server_name like 'm846cluat%'
+ 
+update bcc.MSSQL_server set decommission_date = '2025-07-16 20:00:00.000'
+where server_id = '422'
+
+-----------------------------------------------------------------------------------------
+
+/* Find the Server ID */
+select Server_ID,Server_Name,Last_Modified_Date,Decommission_date from [Database_Central].[bcc].[MSSQL_server]
+where server_Name = '<SQL Server Instance Name>'
+
+/*Update the Offline Date for specific Database*/
+
+UPDATE [Database_Central].[bcc].[MSSQL_Database]
+SET Database_Offline_Date = getdate()
+WHERE SERVER_ID = <Server ID> and Database_Name = '<Database Name>'
+
+/*Verify the change */
+
+select Database_Name,Database_Offline_Date,Last_Database_Backup_Date,Last_Modified_Date from [Database_Central].[bcc].[MSSQL_Database]
+where server_ID = <Server ID> and status = 'OFFLINE' 

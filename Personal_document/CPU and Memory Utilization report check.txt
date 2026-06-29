@@ -1,0 +1,58 @@
+-- Top 10 queries by CPU usage and memory consumption
+SELECT TOP 10
+    qs.total_worker_time / 1000 AS total_cpu_ms,
+    qs.total_logical_reads AS total_memory_reads,
+    qs.execution_count,
+    qs.total_worker_time / qs.execution_count / 1000 AS avg_cpu_ms,
+    qs.total_logical_reads / qs.execution_count AS avg_logical_reads,
+    DB_NAME(st.dbid) AS database_name,
+    st.text AS query_text,
+    qs.creation_time,
+    qs.last_execution_time
+FROM sys.dm_exec_query_stats qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st
+ORDER BY total_cpu_ms DESC;
+
+
+=-----------------------------------------------------------------------------------------------------
+
+SELECT
+    physical_memory_in_use_kb / 1024 AS physical_memory_in_use_mb,
+    locked_page_allocations_kb / 1024 AS locked_pages_used_mb,
+    total_virtual_address_space_kb / 1024 AS total_vas_mb,
+    process_physical_memory_low,
+    process_virtual_memory_low
+FROM sys.dm_os_process_memory;
+
+SELECT 
+    committed_kb / 1024 AS TotalServerMemory_MB,
+    committed_target_kb / 1024 AS TargetServerMemory_MB,
+    physical_memory_kb / 1024 AS TotalPhysicalMemory_MB,
+    Virtual_memory_kb / 1024 AS AvailablePhysicalMemory_MB ----change parameter
+FROM sys.dm_os_sys_info;
+
+
+------------------------------------------------------------------------------------------------------
+
+Buffer Memory
+
+DECLARE @total_buffer INT;
+SELECT @total_buffer = cntr_value
+FROM sys.dm_os_performance_counters
+WHERE RTRIM([object_name]) LIKE '%Buffer Manager' AND counter_name = 'Total Pages';
+
+WITH src AS (
+    SELECT
+        database_id,
+        db_buffer_pages = COUNT_BIG(*)
+    FROM sys.dm_os_buffer_descriptors
+    WHERE database_id BETWEEN 5 AND 32766 -- Exclude system databases if desired, or adjust as needed
+    GROUP BY database_id
+)
+SELECT
+    [db_name] = CASE [database_id] WHEN 32767 THEN 'Resource DB' ELSE DB_NAME([database_id]) END,
+    db_buffer_pages,
+    db_buffer_MB = db_buffer_pages / 128, -- 1 page = 8KB, 1MB = 128 pages
+    db_buffer_percent = CONVERT(DECIMAL(6,3), db_buffer_pages * 100.0 / @total_buffer)
+FROM src
+ORDER BY db_buffer_MB DESC;

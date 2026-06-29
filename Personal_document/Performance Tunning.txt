@@ -1,0 +1,7 @@
+1. CPU Utilization high 
+
+https://learn.microsoft.com/en-us/troubleshoot/sql/database-engine/performance/troubleshoot-high-cpu-usage-issues
+
+2. Memory Utilization high
+
+SQL uses memory to avoid having to read from disk (slow) or frequently compile queries (slow)

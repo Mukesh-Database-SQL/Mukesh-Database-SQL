@@ -1,0 +1,10 @@
+📍 5. Validate Gateway Connectivity
+
+Test in Gateway UI → Data Source Settings → "Test Connection"
+
+Run Telnet/PS test from gateway server:
+
+Test-NetConnection -ComputerName pbiprodwus.centralus.data.microsoft.com -Port 443
+
+
+This ensures the gateway can reach Power BI cloud endpoints.

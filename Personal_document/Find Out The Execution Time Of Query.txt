@@ -1,0 +1,32 @@
+SELECT 
+    GETDATE() AS [PollTime],
+    [PLE] = (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE [object_name] LIKE '%Buffer Manager%' 
+             AND [counter_name] = 'Page life expectancy' 
+             AND [instance_name] = ''), -- Empty instance for default
+    [CPU_Utilization] = (SELECT TOP 1 process_utilization 
+                         FROM (SELECT 
+                                 SystemIdle = record.value('(./Record/SchedulerMonitorEvent/SystemIdle)[1]', 'int'),
+                                 process_utilization = record.value('(./Record/SchedulerMonitorEvent/SQLProcessUtilization)[1]', 'int')
+                               FROM (SELECT CAST(record AS xml) AS record 
+                                     FROM sys.dm_os_ring_buffers 
+                                     WHERE ring_buffer_type = 'RING_BUFFER_SCHEDULER_MONITOR' 
+                                     AND record LIKE '%<SystemHealth>%') AS x) AS y),
+    [Total_Server_Mem_MB] = (SELECT cntr_value / 1024 FROM sys.dm_os_performance_counters 
+                             WHERE [counter_name] = 'Total Server Memory (KB)'),
+    [Target_Server_Mem_MB] = (SELECT cntr_value / 1024 FROM sys.dm_os_performance_counters 
+                              WHERE [counter_name] = 'Target Server Memory (KB)')
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SELECT TOP 10
+    st.text AS [Query Text],
+    qp.query_plan,
+    qs.total_physical_reads,
+    qs.execution_count,
+    qs.total_physical_reads / qs.execution_count AS [Avg_Physical_Reads],
+    qs.last_execution_time
+FROM sys.dm_exec_query_stats AS qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS st
+CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) AS qp
+ORDER BY qs.total_physical_reads DESC;

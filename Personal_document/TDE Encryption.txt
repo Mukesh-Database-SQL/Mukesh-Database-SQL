@@ -1,124 +1,23 @@
-TDE certificate
-
-E:\backup 
-F:\ TDE_ENRYPTION
-
-2 file 
-Certificate and key(.pvk)
-
-pass
-XXXXXXXXX
-
-----------------------------------------------------------------------------------------------------------
-STEP 1:- Create Master Key
-
-USE Master;
+-- Check TDE Encryption Status for All Databases
+SELECT
+    db.name AS [DatabaseName],
+    dek.encryption_state AS [EncryptionState],
+    CASE dek.encryption_state
+        WHEN 0 THEN 'No encryption'
+        WHEN 1 THEN 'Unencrypted'
+        WHEN 2 THEN 'Encryption in progress'
+        WHEN 3 THEN 'Encrypted'
+        WHEN 4 THEN 'Key change in progress'
+        WHEN 5 THEN 'Decryption in progress'
+        WHEN 6 THEN 'Protection change in progress'
+    END AS [EncryptionStateDescription],
+    dek.percent_complete AS [PercentComplete],
+    dek.key_algorithm AS [KeyAlgorithm],
+    dek.key_length AS [KeyLength]
+FROM 
+    sys.dm_database_encryption_keys dek
+JOIN 
+    sys.databases db
+ON 
+    dek.database_id = db.database_id;
 GO
-CREATE MASTER KEY ENCRYPTION
-BY PASSWORD='TxH5!cP@Mxj1DH$n'
-GO
-
-----------------------------------
-STEP 2:- CREATE "MASTER" db Encrypted certificate its protected by strong password
-
-CREATE CERTIFICATE <ServerName>_<InstanceName>_TDE_Certificate
-WITH 
-SUBJECT='MSSQL_Database_TDE_Encryption';
-GO
-
----------------------------------------------------------------------------------
-STEP 3:- Create DB Encryption Key 
-
-USE <DBName>
-GO
-CREATE DATABASE ENCRYPTION KEY
-WITH ALGORITHM = AES_256
-ENCRYPTION BY SERVER CERTIFICATE <ServerName>_<InstanceName>_TDE_Certificate;
-GO
-
---------------------------------------------------------------------------------
-STEP 4:- Backup TDE Certificate and TDE Key
-* Paste this backup file into NAS folder 
-
-Use [Master]
-Go
-BACKUP CERTIFICATE <ServerName>_<InstanceName>_TDE_Certificate
-TO FILE = 'E:\TDE_CERTIFICATE\<ServerName>_<InstanceName>_TDE_Certificate'
-WITH PRIVATE KEY 
-(
-file='E:\TDE_CERTIFICATE\<ServerName>_<InstanceName>_TDE_Certificate_Key.pvk',
-ENCRYPTION BY PASSWORD = 'TxH5!cP@Mxj1DH$n'
-)
-GO
-
---------------------------------------------------------------------------------
-STEP 5:- Enable the Encryption 
-
-ALTER DATABASE <DBName>
-SET ENCRYPTION ON;
-GO
-
-
-Monitor the Encryption Details of the Database
-
-SELECT DB_NAME(database_id) DbName,
-  encryption_state EncryptState,
-  key_algorithm KeyAlgorithm,
-  key_length KeyLength,
-  encryptor_thumbprint EncryptType,
-  percent_complete
-FROM sys.dm_database_encryption_keys;
-
----------------------------------
-STEP 6:- 
-Confirmation details of the TDe encryption details
-
-SELECT @@SERVERNAME ,DB_NAME(database_id)
-  ,encryption_state = CASE 
-    WHEN encryption_state = 1
-      THEN 'Unencrypted'
-    WHEN encryption_state = 2
-      THEN 'Encryption in progress'
-    WHEN encryption_state = 3
-      THEN 'Encrypted'
-    WHEN encryption_state = 4
-      THEN 'Key change in progress'
-    WHEN encryption_state = 5
-      THEN 'Decryption in progress'
-    WHEN encryption_state = 6
-      THEN 'Protection change in progress'
-    WHEN encryption_state = 0
-      THEN 'No database encryption key present, no encryption'
-    END
-  ,create_date
-  ,encryptor_type
-FROM sys.dm_database_encryption_keys
-
-------------------------------------------------------------------------
-Step 7:- Restore the Backup certificate
-
-* need to create a service master key on the Server (in another environment)
-
-USE Master;
-GO
-CREATE MASTER KEY ENCRYPTION
-BY PASSWORD='##########'
-GO
-
-
-* Copy, paste the certificate on the server
-
-USE MASTER
-GO
-CREATE CERTIFICATE <ServerName>_<InstanceName>_TDE_Certificate
-FROM FILE = 'E:\Backup\<ServerName>_<InstanceName>_TDE_Certificate'
-WITH PRIVATE KEY (
-FILE = 'E:\Backup\<ServerName>_<InstanceName>_TDE_Certificate_Key.pvk',
-DECRYPTION BY PASSWORD = '#########' 
-);
-
--------------------------------------------------------------------------------------------------------
-
-
-
-

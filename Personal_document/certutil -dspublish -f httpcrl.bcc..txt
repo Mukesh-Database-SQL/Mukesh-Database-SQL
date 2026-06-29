@@ -1,0 +1,42 @@
+certutil -dspublish -f "http://crl.bcc.qld.gov.au/pki/BCC%20Issuing%20CA%20-%20G3.crl"
+certutil -addstore -f "bcc_root_ca-g2.cer.cer"
+
+
+# 1. Define the CRL and Certificate details
+$crlUrl = "http://crl.bcc.qld.gov.au/pki/BCC%20Issuing%20CA%20-%20G3.crl"
+$certPath = "E:\Temp\m683uat2.ad.bcc.qld.gov.au\bcc_root_ca-g2.cer" # Path to your certificate file
+
+Write-Host "--- Starting Certificate & CRL Validation ---" -ForegroundColor Cyan
+
+# 2. Test Network Reachability to the CRL
+Write-Host "[1/3] Testing CRL URL Reachability..." -NoNewline
+try {
+    $request = Invoke-WebRequest -Uri $crlUrl -Method Head -TimeoutSec 5 -ErrorAction Stop
+    Write-Host " SUCCESS" -ForegroundColor Green
+} catch {
+    Write-Host " FAILED" -ForegroundColor Red
+    Write-Warning "Cannot reach CRL URL. Check Firewall/Proxy settings for $crlUrl"
+}
+
+# 3. Verify the Certificate Trust Chain locally
+Write-Host "[2/3] Checking Local Trust Chain..." -NoNewline
+if (Test-Path $certPath) {
+    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath)
+    $chain = New-Object System.Security.Cryptography.X509Certificates.X509Chain
+    $chain.ChainPolicy.RevocationMode = "Online" # Force it to check the CRL
+    
+    if ($chain.Build($cert)) {
+        Write-Host " VALID" -ForegroundColor Green
+    } else {
+        Write-Host " INVALID" -ForegroundColor Red
+        $chain.ChainStatus | ForEach-Object { Write-Warning $_.StatusInformation }
+    }
+} else {
+    Write-Host " FILE NOT FOUND" -ForegroundColor Yellow
+}
+
+# 4. Use CertUtil for a deep-dive verification
+Write-Host "[3/3] Running CertUtil URL Fetch test..." -ForegroundColor Cyan
+certutil -verify -urlfetch $certPath | Select-String "Leaf certificate revocation check passed", "Certificate is valid"
+
+Write-Host "--- Validation Complete ---" -ForegroundColor Cyan

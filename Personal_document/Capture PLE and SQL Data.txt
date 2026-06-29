@@ -1,0 +1,31 @@
+# --- Configuration ---
+$ServerName = "M868CLPRD1\SEMSIDAM01"
+$Database = "master"
+$ExportPath = "C:\SQLMonitoring\SQL_Health_Report.csv"
+
+# --- T-SQL Query ---
+$SqlQuery = @"
+SELECT 
+    GETDATE() AS [PollTime],
+    @@SERVERNAME AS [Instance],
+    (SELECT cntr_value FROM sys.dm_os_performance_counters 
+     WHERE object_name LIKE '%Buffer Manager%' AND counter_name = 'Page life expectancy') AS [PLE],
+    (SELECT cntr_value FROM sys.dm_os_performance_counters 
+     WHERE object_name LIKE '%Resource Governor%' AND counter_name = 'CPU usage %' AND instance_name = 'default') AS [SQL_CPU_Usage],
+    (SELECT cntr_value FROM sys.dm_os_performance_counters 
+     WHERE counter_name = 'Total Server Memory (KB)') / 1024 AS [Total_Memory_MB],
+    (SELECT cntr_value FROM sys.dm_os_performance_counters 
+     WHERE counter_name = 'Target Server Memory (KB)') / 1024 AS [Target_Memory_MB]
+"@
+
+# --- Execution ---
+try {
+    $Result = Invoke-Sqlcmd -ServerInstance $ServerName -Database $Database -Query $SqlQuery -ErrorAction Stop
+    
+    # Append to CSV (Creates file if it doesnot exist)
+    $Result | Export-Csv -Path $ExportPath -NoTypeInformation -Append
+    Write-Host "Metrics captured successfully at $(Get-Date)" -ForegroundColor Green
+}
+catch {
+    Write-Error "Failed to capture metrics: $($_.Exception.Message)"
+}

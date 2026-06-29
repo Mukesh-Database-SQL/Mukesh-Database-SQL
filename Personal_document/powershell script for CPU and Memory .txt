@@ -1,0 +1,21 @@
+# Define the output file
+$outputFile = "C:\tmp\cpu_usage_log.csv"
+
+# Check if file exists, if not create with headers
+if (!(Test-Path $outputFile)) { "Timestamp,CPU_Usage,Memory_Usage" | Out-File $outputFile }
+
+while ($true) {
+    # Capture current timestamp, CPU usage, and memory usage
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $cpuUsage = [math]::Round((Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue, 2)
+    $memoryUsage = [math]::Round((Get-Counter '\Memory\Committed Bytes').CounterSamples.CookedValue / 1MB)
+
+    # Format the output
+    $logEntry = "$timestamp,$cpuUsage,$memoryUsage"
+
+    # Append the log entry to the file
+    $logEntry | Out-File -FilePath $outputFile -Append
+
+    # Pause for a specified interval (e.g., 5 seconds)
+    Start-Sleep -Seconds 5
+}

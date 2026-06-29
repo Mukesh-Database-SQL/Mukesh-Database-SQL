@@ -1,0 +1,13 @@
+$devices = Get-Content "E:\devices.txt"   # List of hostnames or IPs in a file
+$output = @()
+
+foreach ($device in $devices) {
+    $ip = [System.Net.Dns]::GetHostAddresses($device) | Select-Object -ExpandProperty IPAddressToString
+    $output += [PSCustomObject]@{
+        DeviceName = $device
+        IPAddress  = $ip -join ", "
+    }
+}
+
+$output | Format-Table -AutoSize
+$output | Export-Csv -Path "E:\Device_IPs.csv" -NoTypeInformation

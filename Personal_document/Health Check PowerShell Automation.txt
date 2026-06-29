@@ -1,0 +1,73 @@
+# Configuration
+$Threshold = 80
+$SMTPServer = "smtp.bcc.qld.gov.au"
+$To = "Mukesh.chaurasia@brisbane.qld.gov.au"
+$From = "mssql@M951UAT1-SEOPTM01.brisbane.qld.gov.au"
+$SQLInstance = "localhost"
+
+# 1. Check OS Memory Utilization
+$OS = Get-WmiObject Win32_OperatingSystem
+$TotalMem = $OS.TotalVisibleMemorySize
+$FreeMem = $OS.FreePhysicalMemory
+$UsedPercent = (($TotalMem - $FreeMem) / $TotalMem) * 100
+
+if ($UsedPercent -gt $Threshold) {
+
+    # 2. Query: Top Memory Consuming Queries
+    $MemoryQuery = @"
+    SELECT TOP 5 
+        SUBSTRING(st.text, (qs.statement_start_offset/2) + 1, 
+        ((CASE statement_end_offset WHEN -1 THEN DATALENGTH(st.text) ELSE qs.statement_end_offset END 
+            - qs.statement_start_offset)/2) + 1) AS [Query Text],
+        qs.total_grant_kb / 1024 AS [Max Grant MB],
+        qs.execution_count AS [Exec Count]
+    FROM sys.dm_exec_query_stats qs
+    CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) AS st
+    ORDER BY [Max Grant MB] DESC
+"@
+
+    # 3. Query: Blocked Sessions & Who is Blocking (The "Root Cause")
+    $BlockingQuery = @"
+    SELECT 
+        tl.request_session_id AS [Victim SID],
+        wt.blocking_session_id AS [Blocker SID],
+        s.nt_user_name AS [User],
+        s.program_name AS [Application],
+        st.text AS [Blocking Query],
+        wt.wait_duration_ms / 1000 AS [Wait Seconds]
+    FROM sys.dm_tran_locks tl
+    JOIN sys.dm_os_waiting_tasks wt ON tl.lock_owner_address = wt.resource_address
+    JOIN sys.dm_exec_sessions s ON wt.blocking_session_id = s.session_id
+    OUTER APPLY (
+        SELECT TOP 1 t.text 
+        FROM sys.dm_exec_connections c 
+        CROSS APPLY sys.dm_exec_sql_text(c.most_recent_sql_handle) AS t
+        WHERE c.session_id = wt.blocking_session_id
+    ) AS st
+    WHERE wt.blocking_session_id IS NOT NULL
+"@
+
+    # Execute Queries
+    $MemoryReport = Invoke-Sqlcmd -ServerInstance $SQLInstance -Query $MemoryQuery | Out-String
+    $BlockingReport = Invoke-Sqlcmd -ServerInstance $SQLInstance -Query $BlockingQuery | Out-String
+
+    if ([string]::IsNullOrWhiteSpace($BlockingReport)) { $BlockingReport = "No active blocking detected." }
+
+    # 4. Construct and Send Email
+    $Subject = "CRITICAL ALERT: SQL Server Memory at $($UsedPercent.ToString('F2'))%"
+    $Body = @"
+High memory utilization detected on $SQLInstance.
+
+--- MEMORY ANALYSIS (Top 5 Queries) ---
+$MemoryReport
+
+--- BLOCKING ANALYSIS ---
+$BlockingReport
+
+--- SYSTEM SUMMARY ---
+Total Memory: $([math]::Round($TotalMem / 1MB, 2)) GB
+Used Memory: $(([math]::Round(($TotalMem - $FreeMem) / 1MB, 2))) GB ($($UsedPercent.ToString('F2'))%)
+"@
+
+    Send-MailMessage -SmtpServer $SMTPServer -To $To -From $From -Subject $Subject -Body $Body -Priority High
+}

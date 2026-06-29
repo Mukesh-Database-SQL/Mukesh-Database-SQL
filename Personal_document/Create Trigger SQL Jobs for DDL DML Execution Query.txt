@@ -1,0 +1,79 @@
+1. Create Mail -- Enable the mail box
+
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'Database Mail XPs', 1;
+RECONFIGURE;
+
+2. Create a Table to Log execution
+
+CREATE TABLE CommandLog (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    CommandType NVARCHAR(50),
+    CommandText NVARCHAR(MAX),
+    ExecutionTime DATETIME DEFAULT GETDATE()
+);
+
+
+3. Create Trigger for DDL and DML
+
+----- DDL ---
+
+CREATE TRIGGER DDLTrigger
+ON DATABASE
+FOR DDL_DATABASE_LEVEL_EVENTS
+AS
+BEGIN
+    DECLARE @EventData XML = EVENT_DATA();
+    INSERT INTO CommandLog (CommandType, CommandText)
+    SELECT 'DDL', @EventData.value('(/EVENT_INSTANCE/TSQLCommand)[1]', 'NVARCHAR(MAX)');
+    
+    EXEC msdb.dbo.sp_send_dbmail
+        @profile_name = 'YourMailProfile',
+        @recipients = 'your_ad_group@example.com',
+        @subject = 'DDL Command Executed',
+        @body = @EventData.value('(/EVENT_INSTANCE/TSQLCommand)[1]', 'NVARCHAR(MAX)');
+END;
+
+
+--- DML -----
+
+CREATE TRIGGER DMLTrigger_YourTable
+ON YourTable
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    DECLARE @CommandText NVARCHAR(MAX);
+    SET @CommandText = 'DML operation on YourTable';
+    
+    INSERT INTO CommandLog (CommandType, CommandText)
+    VALUES ('DML', @CommandText);
+    
+    EXEC msdb.dbo.sp_send_dbmail
+        @profile_name = 'YourMailProfile',
+        @recipients = 'your_ad_group@example.com',
+        @subject = 'DML Command Executed',
+        @body = @CommandText;
+END;
+
+3. Create SQL Agent Jobs
+
+DECLARE @Body NVARCHAR(MAX);
+SET @Body = (SELECT STRING_AGG(CONVERT(NVARCHAR(MAX), CommandText), CHAR(13) + CHAR(10))
+              FROM CommandLog
+              WHERE ExecutionTime > DATEADD(HOUR, -1, GETDATE())); -- Adjust time as needed
+
+IF @Body IS NOT NULL
+BEGIN
+    EXEC msdb.dbo.sp_send_dbmail
+        @profile_name = 'YourMailProfile',
+        @recipients = 'your_ad_group@example.com',
+        @subject = 'Summary of Commands Executed in Last Hour',
+        @body = @Body;
+END
+
+
+4. Scheduled the JOBs 
+
+Schedule the Job:
+Go to the "Schedules" page and create a new schedule to run the job at your desired frequency.

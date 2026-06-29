@@ -1,0 +1,109 @@
+First Step ---->>
+---------------------
+1. Run the Validate a Configuration Wizard
+This is your first action to identify misconfiguration.
+
+How to run it:
+Open Failover Cluster Manager
+
+Right-click your cluster name
+
+Choose "Validate Cluster"
+
+Select “Run all tests (recommended)” OR custom tests, such as:
+
+Network
+
+System Configuration
+
+Inventory
+
+Review the Validation Report for:
+
+Network interface mismatches
+
+Latency issues
+
+Missing connectivity
+
+DNS resolution or mismatched subnet issues
+
+
+Result:-
+
+file:///C:/Users/110147-a/AppData/Local/Temp/tmpDD72.tmp.htm#45
+-------------------------------------------------------------------------------------------
+
+---Check the Resource availability 
+
+Get-ClusterResource
+
+Result --
+
+Name                       State  OwnerGroup    ResourceType                 
+----                       -----  ----------    ------------                 
+Cluster IP Address         Online Cluster Group IP Address                   
+Cluster Name               Online Cluster Group Network Name                 
+File Share Witness         Online Cluster Group File Share Witness           
+OUGP01UAG01                Online OUGP01UAG01   SQL Server Availability Group
+OUGP01UAG01_10.108.159.18  Online OUGP01UAG01   IP Address                   
+OUGP01UAG01_OU846SSDSUAO01 Online OUGP01UAG01   Network Name  
+
+----------------------------------------------------------------------
+-----Check the Event Id in Event Viewer
+
+
+Event ID	Description
+1135	Node was removed from the cluster (possible node failure)
+1136	Node was added back to the cluster
+1069	Resource (e.g., AG or listener) failed
+1070	Resource failure resolved
+1205	Group failed over to another node
+1254	Failover cluster resource group failed
+1561	Cluster network interface failed
+1573	Heartbeat failed
+
+
+
+------------------------------------------------------------------------
+
+For Event 1135
+Run the Validate a Configuration wizard to check your network configuration. If the condition persists, check for hardware or software errors related to the network adapters on this node. Also check for failures in any other network components to which the node is connected such as hubs, switches, or bridges.
+
+For Event 1561
+Cluster service failed to start because this node detected that it does not have the latest copy of cluster configuration data. Changes to the cluster occurred while this node was not in membership and as a result was not able to receive configuration data updates.
+
+Guidance:
+Attempt to start the cluster service on all nodes in the cluster so that nodes with the latest copy of the cluster configuration data can first form the cluster. This node will then be able join the cluster and will automatically obtain the updated cluster configuration data. If there are no nodes available with the latest copy of the cluster configuration data, run the 'Start-ClusterNode -FQ' Windows PowerShell cmdlet. Using the ForceQuorum (FQ) parameter will start the cluster service and mark this node's copy of the cluster configuration data to be authoritative.  Forcing quorum on a node with an outdated copy of the cluster database may result in cluster configuration changes that occurred while the node was not participating in the cluster to be lost.
+
+
+-------------------------------------------------------------------------------------------------
+
+-------Check Cluster Network Configuration
+
+Get-ClusterNetwork | Format-Table Name, Address, Role, AutoMetric, Metric
+
+Result :--
+
+Name              Address                  Role AutoMetric Metric
+----              -------                  ---- ---------- ------
+Cluster Network 1 10.108.159.0 ClusterAndClient       True  79840
+Cluster Network 2 10.108.169.0 ClusterAndClient       True  70240
+
+Note: - the heartbeat network should not be set to “Do not allow cluster network communication”).
+-------------------------------------------------------------------------------------------------
+
+-----Review Network Adaptor
+
+Get-NetAdapter | Format-Table Name, InterfaceDescription, Status, LinkSpeed, MacAddress
+
+Result:--
+
+Name        InterfaceDescription        Status LinkSpeed MacAddress       
+----        --------------------        ------ --------- ----------       
+Ethernet    vmxnet3 Ethernet Adapter    Up     10 Gbps   00-50-56-01-06-A7
+Ethernet_Hb vmxnet3 Ethernet Adapter #2 Up     10 Gbps   00-50-56-01-06-B1
+
+-------------------------------------------------------------------------------------------------
+
+------

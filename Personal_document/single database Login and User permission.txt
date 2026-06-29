@@ -1,0 +1,20 @@
+USE YourDatabaseName;
+GO
+
+SELECT  
+    dp.name AS DatabaseUserName,
+    dp.type_desc AS UserType,
+    sp.name AS ServerLoginName,
+    sp.type_desc AS LoginType,
+    dp.authentication_type_desc AS AuthenticationType,
+    dr.name AS DatabaseRole
+FROM sys.database_principals dp
+LEFT JOIN sys.server_principals sp 
+    ON dp.sid = sp.sid
+LEFT JOIN sys.database_role_members drm 
+    ON dp.principal_id = drm.member_principal_id
+LEFT JOIN sys.database_principals dr 
+    ON drm.role_principal_id = dr.principal_id
+WHERE dp.type_desc IN ('SQL_USER', 'WINDOWS_USER', 'WINDOWS_GROUP')
+  AND dp.name NOT IN ('guest', 'dbo', 'INFORMATION_SCHEMA', 'sys')
+ORDER BY DatabaseUserName, DatabaseRole;

@@ -1,0 +1,54 @@
+-- Page Life Expectancy Query for SQL Server
+SELECT 
+    [object_name],
+    [counter_name],
+    [cntr_value] AS [Page Life Expectancy]
+FROM 
+    sys.dm_os_performance_counters
+WHERE 
+    [object_name] LIKE '%Buffer Manager%'
+    AND [counter_name] = 'Page life expectancy';
+
+--------------------------------------------------------------------------------
+
+CHeck The CXPACKET and CXCONSUMER 
+(Having 58% of your waits as CXPACKET is very high. It indicates that your CPU is spending more than half of its "waiting" time simply managing the overhead of parallel threads rather than doing actual work.)
+
+SELECT 
+    wait_type, 
+    wait_time_ms / 1000.0 AS wait_time_seconds,
+    100.0 * wait_time_ms / SUM(wait_time_ms) OVER() AS percentage_of_total_waits
+FROM sys.dm_os_wait_stats
+WHERE wait_type IN ('CXPACKET', 'CXCONSUMER')
+ORDER BY wait_time_ms DESC;
+
+
+
+----------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------
+
+-- Check PLE is enable or not 
+
+
+	    SELECT [object_name], [counter_name], [cntr_value]
+
+    FROM sys.dm_os_performance_counters
+
+    WHERE [counter_name] = 'Page life expectancy';
+
+
+-------------------------------------------------------------------------------
+
+	SELECT getdate(), dosm.total_physical_memory_kb,   
+       dosm.available_physical_memory_kb,   
+       dosm.system_memory_state_desc  
+FROM sys.dm_os_sys_memory dosm;  
+  
+
+SELECT getdate(), dopm.physical_memory_in_use_kb,   
+       dopm.process_physical_memory_low,   
+       dopm.process_virtual_memory_low  
+FROM sys.dm_os_process_memory dopm;  

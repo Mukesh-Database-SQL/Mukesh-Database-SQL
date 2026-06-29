@@ -1,0 +1,37 @@
+-- Check for active requests that might be slowing down monitoring tasks
+SELECT 
+    r.session_id, 
+    r.status, 
+    r.start_time, 
+    r.total_elapsed_time / 1000 AS ElapsedTime_Sec,
+    r.wait_type, 
+    r.last_wait_type, 
+    r.command,
+    t.text AS QueryText
+FROM sys.dm_exec_requests r
+CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) t
+WHERE r.session_id > 50 -- Filter out system processes
+ORDER BY r.total_elapsed_time DESC;
+
+
+
+
+Troubleshooting steps performed in SHIR
+
+1. check the services  (services is running - Auto delay)
+
+2. Test-NetConnection login.microsoftonline.com -Port 443 (NETCONNECTION)  --- OUTBOUND CONNECTIVITY
+
+4. Check node connection from M683UAT1 TO M683UAT2 and reverse it. 
+
+5. Test-NetConnection m683uat1.ad.bcc.qld.gov.au -Port 8060  -- good
+
+6. port is listing or not 
+
+netstat -ano | findstr 8060
+
+7. ping the servers from opposite side (1-2 and 2-1)
+
+m683uat1.ad.bcc.qld.gov.au 
+
+m683uat2.ad.bcc.qld.gov.au 

@@ -1,0 +1,34 @@
+Powershell to run:
+============
+Get-CIMInstance -Class Win32_Process | ForEach-Object {
+"ProcessId: {0}" -f $_.ProcessId;
+"ParentProcessId: {0}" -f $_.ParentProcessId;
+"Name: {0}" -f $_.Name;
+"Caption: {0}" -f $_.Caption;
+"ExecutablePath: {0}" -f $_.ExecutablePath;
+
+$cmdline = $_.CommandLine;
+if ($cmdline) {
+# Deal with any newlines in the command line
+$cmdline = ($cmdline.replace("`r", " ")).replace("`n", " ");
+}
+"CommandLine: {0}" -f $cmdline;
+
+try {
+$owner = Invoke-CimMethod -InputObject $_ -MethodName getOwner -ErrorAction SilentlyContinue;
+if ($owner) {
+$user = $owner.User;
+$domain = $owner.Domain;
+if ($user -And $domain) {
+$user = "{0}\{1}" -f $domain, $user;
+}
+
+"User: {0}" -f $user;
+}
+}
+catch {
+}
+"";
+};
+=========================
+

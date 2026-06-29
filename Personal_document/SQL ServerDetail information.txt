@@ -1,0 +1,203 @@
+TO CHECK detail ple report of sql server
+
+
+ChatGPT said:
+To check a detailed status report of a SQL Server instance, you can collect comprehensive information using various built-in tools and queries.
+
+Here's a step-by-step guide to get a full health/status report of your SQL Server, covering services, instance details, configurations, performance, and errors.
+
+✅ 1. Check SQL Server Service Status
+🔹 Using PowerShell
+powershell
+Copy
+Edit
+Get-Service -Name 'MSSQL*'
+🔹 Using SQL Server Configuration Manager
+Check:
+
+SQL Server instance (e.g., SQL Server (MSSQLSERVER))
+
+SQL Server Agent
+
+SQL Server Browser
+
+✅ 2. Basic SQL Server Instance Information
+sql
+Copy
+Edit
+SELECT 
+    SERVERPROPERTY('MachineName') AS [Machine Name],
+    SERVERPROPERTY('ServerName') AS [Server Name],
+    SERVERPROPERTY('InstanceName') AS [Instance Name],
+    SERVERPROPERTY('IsClustered') AS [Is Clustered],
+    SERVERPROPERTY('Edition') AS [Edition],
+    SERVERPROPERTY('ProductLevel') AS [Patch Level],
+    SERVERPROPERTY('ProductVersion') AS [Product Version],
+    SERVERPROPERTY('EngineEdition') AS [Engine Edition],
+    SERVERPROPERTY('LicenseType') AS [License Type],
+    SERVERPROPERTY('NumLicenses') AS [Number of Licenses];
+✅ 3. SQL Server Configuration Settings
+sql
+Copy
+Edit
+EXEC sp_configure;
+To see advanced options:
+
+sql
+Copy
+Edit
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure;
+✅ 4. Check SQL Server Uptime
+sql
+Copy
+Edit
+SELECT 
+    sqlserver_start_time AS [SQL Server Start Time]
+FROM 
+    sys.dm_os_sys_info;
+✅ 5. Check Error Logs
+sql
+Copy
+Edit
+EXEC xp_readerrorlog 0, 1, N'', N'', NULL, NULL, N'desc';
+Or manually view:
+
+Path: C:\Program Files\Microsoft SQL Server\MSSQLXX.<Instance>\MSSQL\Log\ERRORLOG
+
+✅ 6. Check Current Activity / Blocking / Sessions
+sql
+Copy
+Edit
+-- Active Sessions
+SELECT 
+    session_id, login_name, status, host_name, program_name, blocking_session_id
+FROM 
+    sys.dm_exec_sessions
+WHERE 
+    is_user_process = 1;
+
+-- Blocking
+SELECT 
+    blocking_session_id AS Blocker, session_id AS Blocked
+FROM 
+    sys.dm_exec_requests
+WHERE 
+    blocking_session_id <> 0;
+✅ 7. Check Database Sizes
+sql
+Copy
+Edit
+EXEC sp_MSforeachdb 
+'USE [?]; 
+SELECT DB_NAME() AS [Database], 
+       SUM(size) * 8 / 1024 AS [SizeMB]
+FROM sys.master_files 
+GROUP BY DB_NAME();';
+✅ 8. Disk Space Usage
+sql
+Copy
+Edit
+EXEC xp_fixeddrives;
+You can also use PowerShell or WMI for more detailed drive monitoring.
+
+✅ 9. Check Backup Status
+sql
+Copy
+Edit
+SELECT 
+    d.name AS [Database],
+    MAX(b.backup_finish_date) AS [Last Backup],
+    b.type AS [Type]
+FROM 
+    sys.databases d
+LEFT JOIN 
+    msdb.dbo.backupset b 
+    ON d.name = b.database_name
+GROUP BY 
+    d.name, b.type
+ORDER BY 
+    [Last Backup];
+Backup types:
+
+D = Full
+
+I = Differential
+
+L = Log
+
+✅ 10. Job Status (SQL Server Agent)
+sql
+Copy
+Edit
+SELECT 
+    j.name AS [Job Name],
+    ja.start_execution_date AS [Last Start],
+    ja.stop_execution_date AS [Last End],
+    ja.run_requested_date AS [Requested Start],
+    h.run_status,
+    h.message
+FROM 
+    msdb.dbo.sysjobs j
+LEFT JOIN 
+    msdb.dbo.sysjobactivity ja ON j.job_id = ja.job_id
+LEFT JOIN 
+    msdb.dbo.sysjobhistory h ON j.job_id = h.job_id AND h.step_id = 0
+WHERE 
+    ja.stop_execution_date IS NOT NULL;
+✅ 11. SQL Server Performance Issues (Wait Stats)
+sql
+Copy
+Edit
+SELECT 
+    wait_type, 
+    wait_time_ms / 1000.0 AS WaitSeconds, 
+    waiting_tasks_count AS WaitCount
+FROM 
+    sys.dm_os_wait_stats
+ORDER BY 
+    wait_time_ms DESC;
+✅ 12. CPU Usage and Memory
+sql
+Copy
+Edit
+-- CPU intensive queries
+SELECT 
+    TOP 10 
+    total_worker_time/1000.0 AS [CPU (ms)],
+    execution_count,
+    total_worker_time / execution_count / 1000.0 AS [Avg CPU (ms)],
+    SUBSTRING(qt.text, (qs.statement_start_offset/2)+1,
+              ((CASE qs.statement_end_offset 
+                  WHEN -1 THEN DATALENGTH(qt.text)
+                  ELSE qs.statement_end_offset END 
+                - qs.statement_start_offset)/2)+1) AS [Query Text]
+FROM 
+    sys.dm_exec_query_stats qs
+CROSS APPLY 
+    sys.dm_exec_sql_text(qs.sql_handle) AS qt
+ORDER BY 
+    total_worker_time DESC;
+✅ 13. Index Fragmentation Report
+sql
+Copy
+Edit
+SELECT 
+    dbschemas.[name] AS 'Schema',
+    dbtables.[name] AS 'Table',
+    dbindexes.[name] AS 'Index',
+    indexstats.avg_fragmentation_in_percent
+FROM 
+    sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL, NULL, 'LIMITED') AS indexstats
+INNER JOIN 
+    sys.tables dbtables ON dbtables.[object_id] = indexstats.[object_id]
+INNER JOIN 
+    sys.schemas dbschemas ON dbtables.[schema_id] = dbschemas.[schema_id]
+INNER JOIN 
+    sys.indexes AS dbindexes ON dbindexes.[object_id] = indexstats.[object_id]
+    AND indexstats.index_id = dbindexes.index_id
+WHERE 
+    indexstats.avg_fragmentation_in_percent > 10
+ORDER BY 
+    indexstats.avg_fragmentation_in_percent DESC;

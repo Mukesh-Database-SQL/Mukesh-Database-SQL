@@ -1,0 +1,33 @@
+1. List of all Email Accounts 
+
+EXEC msdb.dbo.sysmail_help_account_sp;
+
+
+2. List all mail profile
+
+EXEC msdb.dbo.sysmail_help_profile_sp;
+
+
+3. List profile to account mapping
+
+EXEC msdb.dbo.sysmail_help_profileaccount_sp;
+
+
+4. 
+SELECT 
+    p.name AS ProfileName,
+    a.name AS AccountName,
+    a.email_address AS SenderAddress,
+    s.servername AS SMTPServer,
+    s.port AS PortNumber
+FROM msdb.dbo.sysmail_profile p
+JOIN msdb.dbo.sysmail_profileaccount pa ON p.profile_id = pa.profile_id
+JOIN msdb.dbo.sysmail_account a ON pa.account_id = a.account_id
+JOIN msdb.dbo.sysmail_server s ON a.account_id = s.account_id;
+
+
+5. Checking feature status
+
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'Database Mail XPs'; -- A 'run_value' of 1 means it is enabled.

@@ -1,0 +1,138 @@
+$ServerInstance = "M951DEV1"
+
+$CheckIntervalSeconds = 1200
+
+$MinBlockMs = 1
+ 
+# Email settings
+
+$SmtpServer = "smtp.bcc.qld.gov.au"
+
+$From = "mssql@M951DEV1-SEOPTM01.brisbane.qld.gov.au"
+
+$To = "MUKESH.CHAURASIA@brisbane.qld.gov.au"
+
+$Subject = "SQL Blocking Alert on $ServerInstance"
+ 
+Write-Host "Monitoring for blocking on $ServerInstance ..."
+ 
+while ($true) {
+ 
+    $query = @"
+
+SELECT 
+
+    r.session_id AS BlockedSession,
+
+    r.blocking_session_id AS BlockingSession,
+
+    r.wait_type,
+
+    r.wait_time AS WaitMilliseconds,
+
+    r.wait_resource,
+
+    DB_NAME(r.database_id) AS DatabaseName,
+
+    t.text AS SqlText
+
+FROM sys.dm_exec_requests r
+
+CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) t
+
+WHERE r.blocking_session_id <> 0
+
+  AND r.wait_time >= $MinBlockMs
+
+ORDER BY r.wait_time DESC;
+
+"@
+ 
+    $result = Invoke-Sqlcmd -ServerInstance $ServerInstance -Query $query
+ 
+    if ($result) {
+
+        Write-Host "⚠ BLOCKING DETECTED at $(Get-Date)"
+ 
+        $body = "Blocking detected on $ServerInstance at $(Get-Date)`n`n" +
+
+                ($result | Out-String)
+ 
+        Send-MailMessage -SmtpServer $SmtpServer -From $From -To $To `
+
+            -Subject $Subject -Body $body
+ 
+        $result | Format-Table -AutoSize
+
+    }
+ 
+    Start-Sleep -Seconds $CheckIntervalSeconds
+
+}
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+Blocking configuration
+threshold value
+-----------------------------------------------------------------------------------------------------------------
+EXEC sys.sp_configure N'show advanced options', N'1';
+RECONFIGURE;
+EXEC sys.sp_configure N'blocked process threshold (s)', N'3600'; -- Threshold in seconds
+RECONFIGURE;
+
+--------------------------------------------------------------------------------------------------------------
+
+The Better Way: The "Blocked Process Threshold"
+Instead of the Event Viewer, most DBAs use the Blocked Process Report. This allows you to define a "threshold" (e.g., 20 seconds). If a block lasts longer than that, SQL Server generates a report.
+
+Step A: Enable the threshold (Run this in SSMS)
+==================================================
+SQL
+EXEC sys.sp_configure N'show advanced options', N'1';
+RECONFIGURE;
+EXEC sys.sp_configure N'blocked process threshold (s)', N'20'; -- Threshold in seconds
+RECONFIGURE;
+
+Step B: View the results
+==================================================
+You won't find these in the Event Viewer; you find them in the Extended Events (system_health session):
+
+In SSMS, go to Management > Extended Events > Sessions > system_health.
+
+Right-click package0.event_file > View Target Data.
+
+Filter for the name blocked_process_report.
+
+=======================================================================================================
+Monitor and Capture the blocking session
+----------------------------------------
+Step 1--->>
+
+CREATE EVENT SESSION BlockingMonitor
+ON SERVER
+ADD EVENT sqlserver.blocked_process_report ADD TARGET package0.event_file
+(
+SET filename = 'E:\Backup\BlockingMonitoring.xel'
+)
+WITH (STARTUP_STATE = ON);
+GO
+
+Step 2--->>
+
+ALTER EVENT SESSION BlockingMonitor ON SERVER STATE = START;
+
+Step 3--->>
+
+Enable Blocked Process Threshold
+
+EXEC sys.sp_configure N'show advanced options', N'1';
+RECONFIGURE;
+EXEC sys.sp_configure N'blocked process threshold (s)', N'20'; -- Threshold in seconds
+RECONFIGURE;
+
+Step 4---->>
+
+SELECT event_data = CONVERT (XML, event_data) FROM sys.fn_xe_file_target_read_file ('E:\Backup\BlockingMonitoring.xel', NULL, NULL,
+NULL);
+ 
