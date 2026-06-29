@@ -1,0 +1,114 @@
+# Define SQL Server and database
+$serverInstance = "INFOSTEW"
+$databaseName = "IS_IS"
+
+# SQL query to check fragmentation
+$query = @"
+SELECT
+    dbschemas.[name] as 'Schema',
+    dbtables.[name] as 'Table',
+    dbindexes.[name] as 'Index',
+    indexstats.alloc_unit_type_desc as 'IndexType',
+    indexstats.avg_fragmentation_in_percent as 'FragmentationPercent'
+FROM
+    sys.dm_db_index_physical_stats (DB_ID(N'$databaseName'), NULL, NULL , NULL, 'LIMITED') AS indexstats
+    INNER JOIN sys.tables dbtables on dbtables.[object_id] = indexstats.[object_id]
+    INNER JOIN sys.schemas dbschemas on dbtables.[schema_id] = dbschemas.[schema_id]
+    INNER JOIN sys.indexes AS dbindexes on dbindexes.[object_id] = indexstats.[object_id]
+                                          AND indexstats.index_id = dbindexes.index_id
+WHERE 
+    indexstats.avg_fragmentation_in_percent > 0
+ORDER BY 
+    indexstats.avg_fragmentation_in_percent DESC;
+"@
+
+# Invoke SQL command
+$fragmentationResults = Invoke-Sqlcmd -ServerInstance $serverInstance -Database $databaseName -Query $query
+
+# Display results
+$fragmentationResults | Format-Table -AutoSize
+
+# Save results to a CSV file
+$fragmentationResults | Export-Csv -Path "fragmentation_report.csv" -NoTypeInformation
+
+Write-Host "Fragmentation report generated and saved to fragmentation_report.csv"
+-----------------------------------------------------------------------------------------------------------------------------------------------
+To know the Fragmentaiton level of the database
+---------------------------------------------------------------------------------------------------------------------------------
+USE [IS_IS]; -- Replace with your database name
+GO
+
+SELECT
+    DB_NAME() AS DatabaseName,
+    schemas.name AS SchemaName,
+    tables.name AS TableName,
+    indexes.name AS IndexName,
+    indexstats.index_type_desc AS IndexType,
+    indexstats.avg_fragmentation_in_percent AS FragmentationPercent,
+    indexstats.page_count AS PageCount
+FROM
+    sys.dm_db_index_physical_stats (DB_ID(), NULL, NULL, NULL, 'LIMITED') AS indexstats
+    INNER JOIN sys.tables AS tables ON indexstats.object_id = tables.object_id
+    INNER JOIN sys.schemas AS schemas ON tables.schema_id = schemas.schema_id
+    INNER JOIN sys.indexes AS indexes ON indexes.object_id = indexstats.object_id AND indexes.index_id = indexstats.index_id
+WHERE
+    indexstats.avg_fragmentation_in_percent > 0
+ORDER BY
+    indexstats.avg_fragmentation_in_percent DESC;
+	
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Reduce the Fragmentation Level
+-------------------------------------------------------------------------------
+USE [your_database_name]; -- Replace with your database name
+GO
+
+-- Declare variables
+DECLARE @schema_name NVARCHAR(128);
+DECLARE @table_name NVARCHAR(128);
+DECLARE @index_name NVARCHAR(128);
+DECLARE @fragmentation FLOAT;
+DECLARE @sql NVARCHAR(MAX);
+
+-- Declare a cursor to loop through fragmented indexes
+DECLARE index_cursor CURSOR FOR
+SELECT 
+    s.name AS SchemaName,
+    t.name AS TableName,
+    i.name AS IndexName,
+    ips.avg_fragmentation_in_percent AS FragmentationPercent
+FROM 
+    sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') ips
+    JOIN sys.indexes i ON ips.object_id = i.object_id AND ips.index_id = i.index_id
+    JOIN sys.tables t ON t.object_id = i.object_id
+    JOIN sys.schemas s ON t.schema_id = s.schema_id
+WHERE 
+    ips.avg_fragmentation_in_percent > 5 -- You can adjust this threshold
+ORDER BY 
+    ips.avg_fragmentation_in_percent DESC;
+
+OPEN index_cursor;
+FETCH NEXT FROM index_cursor INTO @schema_name, @table_name, @index_name, @fragmentation;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @sql = '';
+    
+    -- Determine if we should rebuild or reorganize the index
+    IF @fragmentation >= 30
+        SET @sql = 'ALTER INDEX [' + @index_name + '] ON [' + @schema_name + '].[' + @table_name + '] REBUILD';
+    ELSE IF @fragmentation BETWEEN 5 AND 30
+        SET @sql = 'ALTER INDEX [' + @index_name + '] ON [' + @schema_name + '].[' + @table_name + '] REORGANIZE';
+    
+    -- Execute the generated SQL statement
+    IF @sql <> ''
+    BEGIN
+        PRINT 'Executing: ' + @sql;
+        EXEC sp_executesql @sql;
+    END
+
+    FETCH NEXT FROM index_cursor INTO @schema_name, @table_name, @index_name, @fragmentation;
+END
+
+CLOSE index_cursor;
+DEALLOCATE index_cursor;
+
